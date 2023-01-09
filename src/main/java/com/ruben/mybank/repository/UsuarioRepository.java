@@ -20,6 +20,8 @@ public interface UsuarioRepository extends JpaRepository<UsuarioEntity, Long> {
     public Page<UsuarioEntity> findByTipousuarioId(Long lTipoUsuario, Pageable oPageable);
 
     public Page<UsuarioEntity> findByTipousuarioIdAndDniIgnoreCaseContainingOrNombreIgnoreCaseContainingOrApellido1IgnoreCaseContainingOrApellido2IgnoreCaseContaining(
-            Long lTipoUsuario, String strFilter, String strFilter2, String strFilter3, String strFilter4,
+            Long idTipoUsuario, String strFilter, String strFilter2, String strFilter3, String strFilter4,
             Pageable oPageable);
+
+public UsuarioEntity findByLogin(String strUsuarioName);
 }

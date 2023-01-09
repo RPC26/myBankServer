@@ -21,19 +21,14 @@ public class SessionController {
     @Autowired
     AuthService oAuthService;
 
+
     @GetMapping("")
     public ResponseEntity<UsuarioEntity> check() {
         return new ResponseEntity<UsuarioEntity>(oAuthService.check(), HttpStatus.OK);
     }
 
     @PostMapping
-    public ResponseEntity<UsuarioEntity> login(@RequestBody UsuarioBean oUsuarioBean) {
-        return new ResponseEntity<UsuarioEntity>(oAuthService.login(oUsuarioBean), HttpStatus.OK);
-    }
-
-    @DeleteMapping("")
-    public ResponseEntity<?> logout() {
-        oAuthService.logout();
-        return new ResponseEntity<>(null, HttpStatus.OK);
+    public ResponseEntity<String> login(@org.springframework.web.bind.annotation.RequestBody UsuarioBean oUsuarioBean) {
+        return new ResponseEntity<String>("\"" + oAuthService.login(oUsuarioBean) + "\"", HttpStatus.OK);
     }
 }

@@ -43,8 +43,8 @@ public class UsuarioController {
     public ResponseEntity<Page<UsuarioEntity>> getPage(
             @PageableDefault(page = 0, size = 10, direction = Sort.Direction.DESC) Pageable oPageable,
             @RequestParam(name = "filter", required = false) String strFilter,
-            @RequestParam(name = "tipousuario", required = false) Long lTipoUsuario) {
-        return new ResponseEntity<Page<UsuarioEntity>>(oUsuarioService.getPage(oPageable, strFilter, lTipoUsuario), HttpStatus.OK);
+            @RequestParam(name = "tipousuario", required = false) Long idTipoUsuario) {
+        return new ResponseEntity<Page<UsuarioEntity>>(oUsuarioService.getPage(oPageable, strFilter, idTipoUsuario), HttpStatus.OK);
     }
  
    

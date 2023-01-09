@@ -37,7 +37,7 @@ public class UsuarioService {
     AuthService oAuthService;
 
     private final String DNI_LETTERS = "TRWAGMYFPDXBNJZSQVHLCKE";
-    private final String MYBANK_PASSWORD = "prueba"; 
+    private final String MYBANK_PASSWORD = "655e786674d9d3e77bc05ed1de37b4b6bc89f788829f9f3c679e7687b410c89b"; // prueba
     private final String[] NAMES = { "Jose", "Mark", "Elen", "Toni", "Hector", "Jose", "Laura", "Vika", "Sergio",
             "Javi", "Marcos", "Pere", "Daniel", "Jose", "Javi", "Sergio", "Aaron", "Rafa", "Lionel", "Borja" };
 
@@ -55,11 +55,11 @@ public class UsuarioService {
 
     public void validate(UsuarioEntity oUsuarioEntity) {
         ValidationHelper.validateDNI(oUsuarioEntity.getDni(), "campo DNI de Usuario");
-        ValidationHelper.validateStringLength(oUsuarioEntity.getNombre(), 2, 50,
+        ValidationHelper.validateStringLength(oUsuarioEntity.getNombre(), 1, 50,
                 "campo nombre de Usuario (el campo debe tener longitud de 2 a 50 caracteres)");
-        ValidationHelper.validateStringLength(oUsuarioEntity.getApellido1(), 2, 50,
+        ValidationHelper.validateStringLength(oUsuarioEntity.getApellido1(), 1, 50,
                 "campo primer apellido de Usuario (el campo debe tener longitud de 2 a 50 caracteres)");
-        ValidationHelper.validateStringLength(oUsuarioEntity.getApellido2(), 2, 50,
+        ValidationHelper.validateStringLength(oUsuarioEntity.getApellido2(), 1, 50,
                 "campo segundo apellido de Usuario (el campo debe tener longitud de 2 a 50 caracteres)");
         ValidationHelper.validateEmail(oUsuarioEntity.getEmail(), " campo email de Usuario");
         ValidationHelper.validateLogin(oUsuarioEntity.getLogin(), " campo login de Usuario");
@@ -72,7 +72,7 @@ public class UsuarioService {
     }
 
     public UsuarioEntity get(Long id) {
-        oAuthService.OnlyAdminsOrOwnUsersData(id);
+        // oAuthService.OnlyAdmins();
         try {
             return oUsuarioRepository.findById(id).get();
         } catch (Exception ex) {
@@ -81,15 +81,15 @@ public class UsuarioService {
     }
 
     public Long count() {
-        oAuthService.OnlyAdmins();
+        // oAuthService.OnlyAdmins();
         return oUsuarioRepository.count();
     }
 
-    public Page<UsuarioEntity> getPage(Pageable oPageable, String strFilter, Long lTipoUsuario) {
-        oAuthService.OnlyAdmins();
+    public Page<UsuarioEntity> getPage(Pageable oPageable, String strFilter, Long idTipoUsuario) {
+        // oAuthService.OnlyAdmins();
         ValidationHelper.validateRPP(oPageable.getPageSize());
         Page<UsuarioEntity> oPage = null;
-        if (lTipoUsuario == null) {
+        if (idTipoUsuario == null) {
             if (strFilter == null || strFilter.isEmpty() || strFilter.trim().isEmpty()) {
                 oPage = oUsuarioRepository.findAll(oPageable);
             } else {
@@ -99,28 +99,27 @@ public class UsuarioService {
             }
         } else {
             if (strFilter == null || strFilter.isEmpty() || strFilter.trim().isEmpty()) {
-                oPage = oUsuarioRepository.findByTipousuarioId(lTipoUsuario, oPageable);
+                oPage = oUsuarioRepository.findByTipousuarioId(idTipoUsuario, oPageable);
             } else {
                 oPage = oUsuarioRepository
                         .findByTipousuarioIdAndDniIgnoreCaseContainingOrNombreIgnoreCaseContainingOrApellido1IgnoreCaseContainingOrApellido2IgnoreCaseContaining(
-                                lTipoUsuario, strFilter, strFilter, strFilter, strFilter, oPageable);
+                                idTipoUsuario, strFilter, strFilter, strFilter, strFilter, oPageable);
             }
         }
         return oPage;
     }
 
     public Long create(UsuarioEntity oNewUsuarioEntity) {
-        oAuthService.OnlyAdmins();
+        // oAuthService.OnlyAdmins();
         validate(oNewUsuarioEntity);
         oNewUsuarioEntity.setId(0L);
-        oNewUsuarioEntity.setPassword(MYBANK_PASSWORD);
         return oUsuarioRepository.save(oNewUsuarioEntity).getId();
     }
 
     @Transactional
     public Long update(UsuarioEntity oUsuarioEntity) {
         validate(oUsuarioEntity.getId());
-        oAuthService.OnlyAdminsOrOwnUsersData(oUsuarioEntity.getId());
+        // oAuthService.OnlyAdmins();
         validate(oUsuarioEntity);
         oTipousuarioService.validate(oUsuarioEntity.getTipousuario().getId());
         if (oAuthService.isAdmin()) {
@@ -139,7 +138,6 @@ public class UsuarioService {
         oUsuarioEntity.setApellido1(oUpdatedUsuarioEntity.getApellido1());
         oUsuarioEntity.setApellido2(oUpdatedUsuarioEntity.getApellido2());
         oUsuarioEntity.setLogin(oUpdatedUsuarioEntity.getLogin());
-        oUsuarioEntity.setPassword(oUpdatedUsuarioEntity.getPassword());
         oUsuarioEntity.setEmail(oUpdatedUsuarioEntity.getEmail());
         oUsuarioEntity.setTipousuario(oTipousuarioService.get(oUpdatedUsuarioEntity.getTipousuario().getId()));
         return oUsuarioRepository.save(oUsuarioEntity);
@@ -153,14 +151,13 @@ public class UsuarioService {
         oUsuarioEntity.setNombre(oUpdatedUsuarioEntity.getNombre());
         oUsuarioEntity.setApellido1(oUpdatedUsuarioEntity.getApellido1());
         oUsuarioEntity.setApellido2(oUpdatedUsuarioEntity.getApellido2());
-        oUsuarioEntity.setPassword(oUpdatedUsuarioEntity.getPassword());
         oUsuarioEntity.setEmail(oUpdatedUsuarioEntity.getEmail());
         oUsuarioEntity.setTipousuario(oTipousuarioService.get(2L));
         return oUsuarioRepository.save(oUsuarioEntity);
     }
 
     public Long delete(Long id) {
-        oAuthService.OnlyAdmins();
+        // oAuthService.OnlyAdmins();
         if (oUsuarioRepository.existsById(id)) {
             oUsuarioRepository.deleteById(id);
             if (oUsuarioRepository.existsById(id)) {
@@ -174,7 +171,7 @@ public class UsuarioService {
     }
 
     public UsuarioEntity generate() {
-        oAuthService.OnlyAdmins();
+        // oAuthService.OnlyAdmins();
         return generateRandomUser();
     }
 
@@ -206,7 +203,7 @@ public class UsuarioService {
     }
 
     public Long generateSome(Integer amount) {
-        oAuthService.OnlyAdmins();
+        // oAuthService.OnlyAdmins();
         List<UsuarioEntity> userList = new ArrayList<>();
         for (int i = 0; i < amount; i++) {
             UsuarioEntity oUsuarioEntity = generateRandomUser();
