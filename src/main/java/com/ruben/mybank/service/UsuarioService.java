@@ -53,7 +53,7 @@ public class UsuarioService {
         }
     }
 
-    public void validate(UsuarioEntity oUsuarioEntity) {
+    public void validate(UsuarioEntity oUsuarioEntity, String operacion) {
         ValidationHelper.validateDNI(oUsuarioEntity.getDni(), "campo DNI de Usuario");
         ValidationHelper.validateStringLength(oUsuarioEntity.getNombre(), 1, 50,
                 "campo nombre de Usuario (el campo debe tener longitud de 2 a 50 caracteres)");
@@ -62,12 +62,21 @@ public class UsuarioService {
         ValidationHelper.validateStringLength(oUsuarioEntity.getApellido2(), 1, 50,
                 "campo segundo apellido de Usuario (el campo debe tener longitud de 2 a 50 caracteres)");
         ValidationHelper.validateEmail(oUsuarioEntity.getEmail(), " campo email de Usuario");
-        ValidationHelper.validateLogin(oUsuarioEntity.getLogin(), " campo login de Usuario");
-        // if (oUsuarioRepository.existsByLogin(oUsuarioEntity.getLogin())) {
-        //     throw new ValidationException("el campo Login está repetido");
-        // }
 
-        // ESCRIBIR LA SQL
+        ValidationHelper.validateLogin(oUsuarioEntity.getLogin(), " campo login de Usuario");
+        if (operacion.equals("create")){
+            if ( oUsuarioRepository.existsByLogin(oUsuarioEntity.getLogin())){
+                throw new ValidationException("Login ya existente");
+            }
+        }
+        else if(operacion.equals("update")){
+            UsuarioEntity miUsuarioEntity= oUsuarioRepository.findById(oUsuarioEntity.getId()).get();
+            if ( oUsuarioRepository.existsByLogin(oUsuarioEntity.getLogin()) && !miUsuarioEntity.getLogin().equals(oUsuarioEntity.getLogin())){
+                throw new ValidationException("Login ya existente");
+            }
+
+        }
+       
         oTipousuarioService.validate(oUsuarioEntity.getTipousuario().getId());
     }
 
@@ -111,7 +120,7 @@ public class UsuarioService {
 
     public Long create(UsuarioEntity oNewUsuarioEntity) {
         // oAuthService.OnlyAdmins();
-        validate(oNewUsuarioEntity);
+        validate(oNewUsuarioEntity, "create");
         oNewUsuarioEntity.setId(0L);
         return oUsuarioRepository.save(oNewUsuarioEntity).getId();
     }
@@ -120,7 +129,7 @@ public class UsuarioService {
     public Long update(UsuarioEntity oUsuarioEntity) {
         validate(oUsuarioEntity.getId());
         // oAuthService.OnlyAdmins();
-        validate(oUsuarioEntity);
+        validate(oUsuarioEntity,"update");
         oTipousuarioService.validate(oUsuarioEntity.getTipousuario().getId());
         if (oAuthService.isAdmin()) {
             return update4Admins(oUsuarioEntity).getId();
@@ -151,8 +160,9 @@ public class UsuarioService {
         oUsuarioEntity.setNombre(oUpdatedUsuarioEntity.getNombre());
         oUsuarioEntity.setApellido1(oUpdatedUsuarioEntity.getApellido1());
         oUsuarioEntity.setApellido2(oUpdatedUsuarioEntity.getApellido2());
+        oUsuarioEntity.setLogin(oUpdatedUsuarioEntity.getLogin());
         oUsuarioEntity.setEmail(oUpdatedUsuarioEntity.getEmail());
-        oUsuarioEntity.setTipousuario(oTipousuarioService.get(2L));
+        oUsuarioEntity.setTipousuario(oTipousuarioService.get(oUpdatedUsuarioEntity.getTipousuario().getId()));
         return oUsuarioRepository.save(oUsuarioEntity);
     }
 
