@@ -1,6 +1,5 @@
 package com.ruben.mybank.helper;
 
-
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -37,6 +36,33 @@ public class RandomHelper {
         return randomNum;
     }
 
+    public static String getRandomIntCantidad(int cantidad) {
+        
+        StringBuilder randomStringFinal = new StringBuilder();
+
+        for(int i=0; i<cantidad; i++){
+         Random rand = new Random();
+         int randomNum = rand.nextInt((9 - 1) + 1) + 1;
+         randomStringFinal.append(String.valueOf(randomNum));
+        }
+
+        return randomStringFinal.toString();
+    }
+
+
+    public static String getRandomIban() {
+
+        return "ES12" + getRandomIntCantidad(4) + getRandomIntCantidad(4) + 
+        getRandomIntCantidad(2) + getRandomIntCantidad(8);       
+
+    }
+
+    public static Long getRandomLongCuenta(Long min, Long max) {
+        Random rand = new Random();
+        Long randomNum = rand.nextLong((max - min) + 1) + min;
+        return randomNum;
+    }
+
     public static int getRandomInt2(int minValue, int maxValue) {
         return ThreadLocalRandom.current().nextInt(minValue, maxValue);
     }
@@ -47,7 +73,7 @@ public class RandomHelper {
 
     public static Date getRadomDate() {
         GregorianCalendar gc = new GregorianCalendar();
-        int year = getRandomInt(2010, 2019);
+        int year = getRandomInt(2010, 2023);
         gc.set(gc.YEAR, year);
         int dayOfYear = getRandomInt(1, gc.getActualMaximum(gc.DAY_OF_YEAR));
         gc.set(gc.DAY_OF_YEAR, dayOfYear);

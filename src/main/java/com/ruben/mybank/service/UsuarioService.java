@@ -205,9 +205,9 @@ public class UsuarioService {
         oUserEntity.setPassword(MYBANK_PASSWORD); // wildcart
         oUserEntity.setEmail(generateEmail(oUserEntity.getNombre(), oUserEntity.getApellido1()));
         if (RandomHelper.getRandomInt(0, 10) > 1) {
-            oUserEntity.setTipousuario(oTipousuarioRepository.getById(TipoUsuarioHelper.USER));
+            oUserEntity.setTipousuario(oTipousuarioRepository.getReferenceById(TipoUsuarioHelper.USER));
         } else {
-            oUserEntity.setTipousuario(oTipousuarioRepository.getById(TipoUsuarioHelper.ADMIN));
+            oUserEntity.setTipousuario(oTipousuarioRepository.getReferenceById(TipoUsuarioHelper.ADMIN));
         }
         return oUserEntity;
     }
