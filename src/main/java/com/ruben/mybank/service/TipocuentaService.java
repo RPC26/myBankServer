@@ -40,7 +40,8 @@ public class TipocuentaService {
 
     public TipocuentaEntity get(Long id) {
         validate(id);
-        return oTipocuentaRepository.getReferenceById(id);
+        return oTipocuentaRepository.findById(id)
+            .orElseThrow(() -> new ResourceNotFoundException("id "+id+" not found"));
     }
 
     public List<TipocuentaEntity> all() {
@@ -70,11 +71,7 @@ public class TipocuentaService {
 
     public Long generate() {
         // oAuthService.OnlyAdmins();
-        List<TipocuentaEntity> tipoCuentaLista = generateTipoCuenta();
-
-        for (int i = tipoCuentaLista.size() - 1; i >= 0; i--) {
-            oTipocuentaRepository.save(tipoCuentaLista.get(i));
-        }
+        oTipocuentaRepository.saveAll(generateTipoCuenta());
         return oTipocuentaRepository.count();
     }
 

@@ -8,8 +8,11 @@ import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.Random;
+import java.util.StringJoiner;
 import java.time.ZoneId;
 import java.util.concurrent.ThreadLocalRandom;
+import java.util.regex.Pattern;
+
 import javax.xml.bind.DatatypeConverter;
 
 import com.ruben.mybank.exception.CannotPerformOperationException;
@@ -51,10 +54,19 @@ public class RandomHelper {
 
 
     public static String getRandomIban() {
-
-        return "ES12" + getRandomIntCantidad(4) + getRandomIntCantidad(4) + 
-        getRandomIntCantidad(2) + getRandomIntCantidad(8);       
-
+        String pattern = "[E][S][1][2][\\s]\\d{4}[\\s]\\d{4}[\\s]\\d{2}[\\s]\\d{8}$";
+        StringJoiner ibanBuilder = new StringJoiner(" ");
+        
+        String iban = ibanBuilder.add("ES12")
+            .add(getRandomIntCantidad(4))
+            .add(getRandomIntCantidad(4))
+            .add(getRandomIntCantidad(2))
+            .add(getRandomIntCantidad(8)).toString(); 
+        
+        if (Pattern.matches(pattern,iban)) {
+            return iban;
+        }
+        return "null";
     }
 
     public static Long getRandomLongCuenta(Long min, Long max) {

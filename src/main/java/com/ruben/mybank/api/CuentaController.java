@@ -43,8 +43,9 @@ public class CuentaController {
     public ResponseEntity<Page<CuentaEntity>> getPage(
              @PageableDefault(page = 0, size = 10, direction = Sort.Direction.DESC) Pageable oPageable,
             @RequestParam(name = "filter", required = false) String strFilter,
-            @RequestParam(name = "tipousuario", required = false) Long lTipoUsuario) {
-        return new ResponseEntity<Page<CuentaEntity>>(oCuentaService.getPage(oPageable, strFilter, lTipoUsuario), HttpStatus.OK);
+            @RequestParam(name = "tipocuenta", required = false) Long id_tipocuenta,
+            @RequestParam(name = "usuario", required = false) Long id_usuario) {
+        return new ResponseEntity<Page<CuentaEntity>>(oCuentaService.getPage(oPageable, strFilter, id_tipocuenta, id_usuario), HttpStatus.OK);
     }
 
     @PostMapping("/")

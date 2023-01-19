@@ -6,6 +6,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import com.ruben.mybank.entity.CuentaEntity;
+import com.ruben.mybank.entity.UsuarioEntity;
 import com.ruben.mybank.exception.CannotPerformOperationException;
 import com.ruben.mybank.exception.ResourceNotFoundException;
 import com.ruben.mybank.exception.ResourceNotModifiedException;
@@ -16,6 +17,7 @@ import com.ruben.mybank.repository.CuentaRepository;
 import com.ruben.mybank.repository.TipocuentaRepository;
 import com.ruben.mybank.repository.UsuarioRepository;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -36,6 +38,9 @@ public class CuentaService {
 
     @Autowired
     TipocuentaRepository oTipocuentaRepository;
+
+    @Autowired
+    TipocuentaService oTipocuentaService;
 
     @Autowired
     CuentaRepository oCuentaRepository;
@@ -72,11 +77,8 @@ public class CuentaService {
 
     public CuentaEntity get(Long id) {
         // oAuthService.OnlyAdmins();
-        try {
-            return oCuentaRepository.findById(id).get();
-        } catch (Exception ex) {
-            throw new ResourceNotFoundException("id " + id + " not exist");
-        }
+        return oCuentaRepository.findById(id)
+            .orElseThrow(() -> new ResourceNotFoundException("id " + id + " not exist"));
     }
 
     public Long count() {
@@ -84,27 +86,39 @@ public class CuentaService {
         return oCuentaRepository.count();
     }
 
-    public Page<CuentaEntity> getPage(Pageable oPageable, String strFilter, Long id_tipocuenta) {
+    public Page<CuentaEntity> getPage(Pageable oPageable, String strFilter, Long id_tipocuenta, Long id_usuario) {
         // oAuthService.OnlyAdmins();
         ValidationHelper.validateRPP(oPageable.getPageSize());
         Page<CuentaEntity> oPage = null;
-        if (id_tipocuenta == null) {
+
+        // Pasar id_usuario
+        if (id_tipocuenta == null && id_usuario != null) {
             if (strFilter == null || strFilter.isEmpty() || strFilter.trim().isEmpty()) {
-                oPage = oCuentaRepository.findAll(oPageable);
-            } else {
-                // oPage = oCuentaRepository
-                // .findByDniIgnoreCaseContainingOrNombreIgnoreCaseContainingOrApellido1IgnoreCaseContainingOrApellido2IgnoreCaseContaining(
-                // strFilter, strFilter, strFilter, strFilter, oPageable);
+                oPage = oCuentaRepository.findByUsuarioId(id_usuario, oPageable);
             }
-        } else {
+
+            oPage = oCuentaRepository.findByUsuarioIdAndIbanIgnoreCaseContaining(id_usuario, strFilter, oPageable);
+        }
+
+
+        // Pasar id_tipocuenta
+        if (id_tipocuenta != null && id_usuario == null) {
             if (strFilter == null || strFilter.isEmpty() || strFilter.trim().isEmpty()) {
                 oPage = oCuentaRepository.findByTipocuentaId(id_tipocuenta, oPageable);
-            } else {
-                // oPage = oCuentaRepository
-                // .findByTipousuarioIdAndDniIgnoreCaseContainingOrNombreIgnoreCaseContainingOrApellido1IgnoreCaseContainingOrApellido2IgnoreCaseContaining(
-                // id_tipocuenta, strFilter, strFilter, strFilter, strFilter, oPageable);
             }
+
+            oPage = oCuentaRepository.findByTipocuentaIdAndIbanIgnoreCaseContaining(id_tipocuenta, strFilter, oPageable);
         }
+
+        // Pasando nada
+        if (id_tipocuenta == null && id_usuario == null) {
+            if (strFilter == null || strFilter.isEmpty() || strFilter.trim().isEmpty()) {
+                oPage = oCuentaRepository.findAll(oPageable);
+            }
+
+            oPage = oCuentaRepository.findByIbanIgnoreCaseContaining(strFilter, oPageable);
+        }
+
         return oPage;
     }
 
@@ -112,6 +126,7 @@ public class CuentaService {
         // oAuthService.OnlyAdmins();
         validate2(oNewCuentaEntity);
         oNewCuentaEntity.setId(0L);
+        oNewCuentaEntity.setFechacreacion(LocalDateTime.now());
         return oCuentaRepository.save(oNewCuentaEntity).getId();
     }
 
@@ -151,11 +166,7 @@ public class CuentaService {
         // oAuthService.OnlyAdmins();
         if (oCuentaRepository.existsById(id)) {
             oCuentaRepository.deleteById(id);
-            if (oCuentaRepository.existsById(id)) {
-                throw new ResourceNotModifiedException("can't remove register " + id);
-            } else {
-                return id;
-            }
+            return id;
         } else {
             throw new ResourceNotModifiedException("id " + id + " not exist");
         }
@@ -170,7 +181,8 @@ public class CuentaService {
         if (count() > 0) {
             List<CuentaEntity> cuentaList = oCuentaRepository.findAll();
             int iPosicion = RandomHelper.getRandomInt(0, (int) oCuentaRepository.count() - 1);
-            return oCuentaRepository.getReferenceById(cuentaList.get(iPosicion).getId());
+            return oCuentaRepository.findById(cuentaList.get(iPosicion).getId())
+                .orElseThrow(() -> new ResourceNotFoundException("id " + cuentaList.get(iPosicion).getId() + " not found"));
         } else {
             throw new CannotPerformOperationException("ho hay usuarios en la base de datos");
         }
@@ -178,20 +190,21 @@ public class CuentaService {
 
     private CuentaEntity generateRandomCuenta() {
         CuentaEntity oCuentaEntity = new CuentaEntity();
-        oCuentaEntity.setFechaCreacion(RandomHelper.getRadomDateTime());
+        oCuentaEntity.setFechacreacion(RandomHelper.getRadomDateTime());
         oCuentaEntity.setIban(RandomHelper.getRandomIban());
-        oCuentaEntity.setUsuario(oUsuarioRepository.findById(idUsuarioRandom()).get());
-        if (RandomHelper.getRandomInt(0, 10) > 1) {
-            oCuentaEntity.setTipocuenta(oTipocuentaRepository.getReferenceById(TipoCuentaHelper.NEGOCIOS));
+        oCuentaEntity.setUsuario(usuarioRandom());
+        if (RandomHelper.getRandomInt(0, 10) > 5) {
+            oCuentaEntity.setTipocuenta(oTipocuentaService.get(TipoCuentaHelper.NEGOCIOS));
         } else {
-            oCuentaEntity.setTipocuenta(oTipocuentaRepository.getReferenceById(TipoCuentaHelper.CORRIENTE));
+            oCuentaEntity.setTipocuenta(oTipocuentaService.get(TipoCuentaHelper.CORRIENTE));
         }
         return oCuentaEntity;
     }
 
-    public Long idUsuarioRandom() {
-        Long total = oUsuarioService.count();
-        return RandomHelper.getRandomLongCuenta(1L, total);
+    private UsuarioEntity usuarioRandom() {
+        List<UsuarioEntity> allUsers = oUsuarioRepository.findAll();
+        UsuarioEntity random = allUsers.get(RandomHelper.getRandomInt(0, allUsers.size() -1));
+        return random;
     }
 
     public Long generateSome(Integer amount) {
@@ -204,12 +217,4 @@ public class CuentaService {
         oCuentaRepository.saveAll(cuentaList);
         return oCuentaRepository.count();
     }
-
-    private String getFromList(List<String> list) {
-        int randomNumber = RandomHelper.getRandomInt(0, list.size() - 1);
-        String value = list.get(randomNumber);
-        list.remove(randomNumber);
-        return value;
-    }
-
 }

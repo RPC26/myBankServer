@@ -24,7 +24,7 @@ public class CuentaEntity {
     private Long id;
 
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'")
-    private LocalDateTime fechaCreacion;
+    private LocalDateTime fechacreacion;
 
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "id_usuario")
@@ -51,12 +51,12 @@ public class CuentaEntity {
         this.id = id;
     }
 
-    public LocalDateTime getFechaCreacion() {
-        return this.fechaCreacion;
+    public LocalDateTime getFechacreacion() {
+        return this.fechacreacion;
     }
 
-    public void setFechaCreacion(LocalDateTime fechaCreacion) {
-        this.fechaCreacion = fechaCreacion;
+    public void setFechacreacion(LocalDateTime fechaCreacion) {
+        this.fechacreacion = fechaCreacion;
     }
 
     public UsuarioEntity getUsuario() {
