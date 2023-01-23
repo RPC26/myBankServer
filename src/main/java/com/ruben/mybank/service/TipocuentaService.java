@@ -33,8 +33,8 @@ public class TipocuentaService {
     //porcentajeBeneficio está contemplado como un double pero no es correcto
     public List<TipocuentaEntity> generateTipoCuenta() {
         List<TipocuentaEntity> tipoCuentaLista = new ArrayList<>();
-        tipoCuentaLista.add(new TipocuentaEntity(1L, "negocios", 5.0));
-        tipoCuentaLista.add(new TipocuentaEntity(2L, "corriente", 3.0));
+        tipoCuentaLista.add(new TipocuentaEntity(1L, "negocios", 5.0, 500));
+        tipoCuentaLista.add(new TipocuentaEntity(2L, "corriente", 3.0, 100));
         return tipoCuentaLista;
     }
 

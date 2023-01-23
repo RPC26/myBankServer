@@ -27,6 +27,8 @@ public class TipocuentaEntity {
 
     private double porcentajebeneficio;
 
+    private double maxnegativo;
+
     @OneToMany(mappedBy = "tipocuenta", fetch = FetchType.LAZY)
     private final List<CuentaEntity> cuenta;
 
@@ -34,11 +36,12 @@ public class TipocuentaEntity {
         this.cuenta = new ArrayList<>();
     }
 
-    public TipocuentaEntity(Long id, String nombre, double porcentajebeneficio) {
+    public TipocuentaEntity(Long id, String nombre, double porcentajebeneficio, double maxnegativo) {
         this.cuenta = new ArrayList<>();
         this.id = id;
         this.nombre = nombre;
         this.porcentajebeneficio = porcentajebeneficio;
+        this.maxnegativo = maxnegativo;
     }
 
     public Long getId() {
@@ -55,6 +58,14 @@ public class TipocuentaEntity {
 
     public void setPorcentajebeneficio(double porcentajebeneficio) {
         this.porcentajebeneficio = porcentajebeneficio;
+    }
+
+    public double getMaxnegativo() {
+        return this.maxnegativo;
+    }
+
+    public void setMaxnegativo(double maxnegativo) {
+        this.maxnegativo = maxnegativo;
     }
 
     public void setNombre(String nombre) {

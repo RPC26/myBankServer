@@ -57,7 +57,8 @@ public class AuthService {
     }
     
     public void OnlyAdmins() {
-        UsuarioEntity oUsuarioSessionEntity = oUsuarioRepository.findByLogin((String)  oRequest.getAttribute("usuario"));
+        String nombre = (String)  oRequest.getAttribute("usuario");
+        UsuarioEntity oUsuarioSessionEntity = oUsuarioRepository.findByLogin(nombre);
         if (oUsuarioSessionEntity == null) {
             throw new UnauthorizedException("this request is only allowed to admin role");
         } else {
