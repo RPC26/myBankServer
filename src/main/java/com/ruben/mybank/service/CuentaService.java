@@ -117,6 +117,15 @@ public class CuentaService {
                     oPageable);
         }
 
+        // Pasando todo
+        if (id_tipocuenta != null && id_usuario != null) {
+            if (strFilter == null || strFilter.isEmpty() || strFilter.trim().isEmpty()) {
+                oPage = oCuentaRepository.findByTipocuentaIdAndUsuarioId(id_tipocuenta, id_usuario, oPageable);
+            }
+
+            oPage = oCuentaRepository.findByTipocuentaIdAndUsuarioIdAndIbanIgnoreCaseContaining(id_tipocuenta, id_usuario, strFilter, oPageable);
+        }
+
         // Pasando nada
         if (id_tipocuenta == null && id_usuario == null) {
             if (strFilter == null || strFilter.isEmpty() || strFilter.trim().isEmpty()) {
