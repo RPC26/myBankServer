@@ -17,7 +17,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.data.domain.Sort;
 
-
 import com.ruben.mybank.entity.CuentaEntity;
 import com.ruben.mybank.service.CuentaService;
 

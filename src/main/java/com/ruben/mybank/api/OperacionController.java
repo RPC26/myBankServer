@@ -1,5 +1,7 @@
 package com.ruben.mybank.api;
 
+import javax.xml.bind.ValidationException;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -73,20 +75,20 @@ public class OperacionController {
         return new ResponseEntity<>(oOperacionService.generateSome(amount), HttpStatus.OK);
     }
 
-    // @PostMapping("/ingresar")
-    // public ResponseEntity<OperacionEntity> ingresar() {
-    //     return new ResponseEntity<OperacionEntity>(oOperacionService.ingresar(), HttpStatus.OK);
-    // }
+    @PostMapping("/ingresar")
+    public ResponseEntity<OperacionEntity> ingresar(@RequestBody OperacionEntity operacionEntity) throws ValidationException {
+        return new ResponseEntity<OperacionEntity>(oOperacionService.ingresar(operacionEntity), HttpStatus.OK);
+    }
 
-    // @PostMapping("/extraer")
-    // public ResponseEntity<OperacionEntity> extraer() {
-    //     return new ResponseEntity<OperacionEntity>(oOperacionService.extraer(), HttpStatus.OK);
-    // }
+    @PostMapping("/extraer")
+    public ResponseEntity<OperacionEntity> extraer(@RequestBody OperacionEntity operacionEntity) throws ValidationException {
+        return new ResponseEntity<OperacionEntity>(oOperacionService.extraer(operacionEntity), HttpStatus.OK);
+    }
 
-    // @PostMapping("/transferir")
-    // public ResponseEntity<OperacionEntity> transferir() {
-    //     return new ResponseEntity<OperacionEntity>(oOperacionService.transferir(), HttpStatus.OK);
-    // }
+    @PostMapping("/transferir")
+    public ResponseEntity<OperacionEntity> transferir(@RequestBody OperacionEntity operacionEntity) throws ValidationException {
+        return new ResponseEntity<OperacionEntity>(oOperacionService.transferir(operacionEntity), HttpStatus.OK);
+    }
 
 
 

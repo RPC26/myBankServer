@@ -1,5 +1,7 @@
 package com.ruben.mybank.entity;
 
+import java.util.List;
+
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
@@ -8,6 +10,7 @@ import javax.persistence.Table;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -37,6 +40,17 @@ public class UsuarioEntity {
     @JoinColumn(name = "id_tipousuario")
     private TipousuarioEntity tipousuario;
 
+    @OneToMany(mappedBy = "usuario", fetch = FetchType.LAZY)
+    private List<CuentaEntity> cuentas;
+
+
+    public int getCuentas() {
+        return this.cuentas.size();
+    }
+
+    public void setCuentas(List<CuentaEntity> cuentas) {
+        this.cuentas = cuentas;
+    }
 
 
     public Long getId() {

@@ -5,7 +5,10 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import com.ruben.mybank.bean.CuentaSaldoBean;
+import com.ruben.mybank.bean.SaldoBean;
 import com.ruben.mybank.entity.CuentaEntity;
+import com.ruben.mybank.entity.OperacionEntity;
 import com.ruben.mybank.entity.UsuarioEntity;
 import com.ruben.mybank.exception.CannotPerformOperationException;
 import com.ruben.mybank.exception.ResourceNotFoundException;
@@ -14,6 +17,7 @@ import com.ruben.mybank.helper.RandomHelper;
 import com.ruben.mybank.helper.TipoCuentaHelper;
 import com.ruben.mybank.helper.ValidationHelper;
 import com.ruben.mybank.repository.CuentaRepository;
+import com.ruben.mybank.repository.OperacionRepository;
 import com.ruben.mybank.repository.TipocuentaRepository;
 import com.ruben.mybank.repository.UsuarioRepository;
 
@@ -44,6 +48,9 @@ public class CuentaService {
 
     @Autowired
     CuentaRepository oCuentaRepository;
+
+    @Autowired
+    OperacionRepository oOperacionRepository;
 
     @Autowired
     AuthService oAuthService;
@@ -78,7 +85,7 @@ public class CuentaService {
     public CuentaEntity get(Long id) {
         // oAuthService.OnlyAdmins();
         return oCuentaRepository.findById(id)
-            .orElseThrow(() -> new ResourceNotFoundException("id " + id + " not exist"));
+                .orElseThrow(() -> new ResourceNotFoundException("id " + id + " not exist"));
     }
 
     public Long count() {
@@ -100,14 +107,14 @@ public class CuentaService {
             oPage = oCuentaRepository.findByUsuarioIdAndIbanIgnoreCaseContaining(id_usuario, strFilter, oPageable);
         }
 
-
         // Pasar id_tipocuenta
         if (id_tipocuenta != null && id_usuario == null) {
             if (strFilter == null || strFilter.isEmpty() || strFilter.trim().isEmpty()) {
                 oPage = oCuentaRepository.findByTipocuentaId(id_tipocuenta, oPageable);
             }
 
-            oPage = oCuentaRepository.findByTipocuentaIdAndIbanIgnoreCaseContaining(id_tipocuenta, strFilter, oPageable);
+            oPage = oCuentaRepository.findByTipocuentaIdAndIbanIgnoreCaseContaining(id_tipocuenta, strFilter,
+                    oPageable);
         }
 
         // Pasando nada
@@ -182,7 +189,8 @@ public class CuentaService {
             List<CuentaEntity> cuentaList = oCuentaRepository.findAll();
             int iPosicion = RandomHelper.getRandomInt(0, (int) oCuentaRepository.count() - 1);
             return oCuentaRepository.findById(cuentaList.get(iPosicion).getId())
-                .orElseThrow(() -> new ResourceNotFoundException("id " + cuentaList.get(iPosicion).getId() + " not found"));
+                    .orElseThrow(() -> new ResourceNotFoundException(
+                            "id " + cuentaList.get(iPosicion).getId() + " not found"));
         } else {
             throw new CannotPerformOperationException("ho hay usuarios en la base de datos");
         }
@@ -203,7 +211,7 @@ public class CuentaService {
 
     private UsuarioEntity usuarioRandom() {
         List<UsuarioEntity> allUsers = oUsuarioRepository.findAll();
-        UsuarioEntity random = allUsers.get(RandomHelper.getRandomInt(0, allUsers.size() -1));
+        UsuarioEntity random = allUsers.get(RandomHelper.getRandomInt(0, allUsers.size() - 1));
         return random;
     }
 

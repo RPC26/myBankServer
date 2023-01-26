@@ -5,6 +5,7 @@ import java.util.List;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
 
 import com.ruben.mybank.entity.OperacionEntity;
 
@@ -58,5 +59,7 @@ Page<OperacionEntity> findByCantidadContainingOrFechahoraoperacionContaining(Str
 
 List<OperacionEntity> findByEmisorCuentaEntityIdOrReceptorCuentaEntityId(Long idEmisor, Long idEmisor2);
     
+@Query(value = "SELECT * FROM operacion WHERE id_cuentaemisor = ?1 OR id_cuentareceptor = ?2", nativeQuery = true)
+List<OperacionEntity> allOperacionesCuenta(Long idEmisor, Long idEmisor2);
     
 }

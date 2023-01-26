@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service;
 
 import com.ruben.mybank.entity.CuentaEntity;
 import com.ruben.mybank.entity.OperacionEntity;
+import com.ruben.mybank.entity.TipooperacionEntity;
 import com.ruben.mybank.entity.OperacionEntity;
 import com.ruben.mybank.entity.UsuarioEntity;
 import com.ruben.mybank.exception.CannotPerformOperationException;
@@ -25,6 +26,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import javax.transaction.Transactional;
+import javax.xml.bind.ValidationException;
 
 @Service
 public class OperacionService {
@@ -60,13 +62,13 @@ public class OperacionService {
 
     public void validateTransferencia(OperacionEntity oOperacionEntity) {
         Long idEmisor = oOperacionEntity.getEmisorCuentaEntity().getId();
-        List<OperacionEntity> operacionesEmisor = oOperacionRepository.findByEmisorCuentaEntityIdOrReceptorCuentaEntityId(idEmisor, idEmisor);
+        List<OperacionEntity> operacionesEmisor = oOperacionRepository.allOperacionesCuenta(idEmisor, idEmisor);
 
         double balanceTotal = 0;
 
         // Balance del emisor
         for (OperacionEntity operacion: operacionesEmisor) {
-            System.out.println(operacion);
+
             Long tipoOperacion = operacion.getTipooperacion().getId();
             double cantidadOperacion = operacion.getCantidad();
             
@@ -74,17 +76,16 @@ public class OperacionService {
                 balanceTotal += cantidadOperacion;
             }
 
-            if (tipoOperacion == 2L || tipoOperacion == 3L) {
+            if (tipoOperacion == 2L || (tipoOperacion == 3L && operacion.getReceptorCuentaEntity().getId() != idEmisor)) {
                 balanceTotal -= cantidadOperacion;
             }
 
-            if (operacion.getReceptorCuentaEntity().getUsuario().getId() == idEmisor) {
+            if (operacion.getReceptorCuentaEntity() != null && operacion.getReceptorCuentaEntity().getId() == idEmisor) {
                 balanceTotal += cantidadOperacion;
             }
-
-            System.out.println(balanceTotal);
         }
 
+        System.out.println(balanceTotal);
 
         double maxNegativoEmisor = oOperacionEntity.getEmisorCuentaEntity().getTipocuenta().getMaxnegativo();
         double cantidadTransferencia = oOperacionEntity.getCantidad();
@@ -99,7 +100,6 @@ public class OperacionService {
         OperacionEntity o = oOperacionRepository.findById(id)
             .orElseThrow(() -> new ResourceNotFoundException("id " + id + " not exist"));
 
-            validateTransferencia(o);
         return o;
     }
 
@@ -260,19 +260,56 @@ public class OperacionService {
         return oOperacionRepository.count();
     }
 
-    // public OperacionEntity ingresar() {
+    public OperacionEntity ingresar(OperacionEntity oOperacionEntity) throws ValidationException {
+        double ingreso = oOperacionEntity.getCantidad();
+        if(ingreso<=0){
+            throw new ValidationException("Cantidad incorrecta");
+        }
+        TipooperacionEntity tipo = oTipooperacionRepository.findById(TipoOperacionHelper.INGRESO).get();
+        oOperacionEntity.setTipooperacion(tipo);
 
-    //     return null;
-    // }
+        CuentaEntity emisor = oCuentaRepository.findById(oOperacionEntity.getEmisorCuentaEntity().getId()).get();
 
-    // public OperacionEntity extraer() {
+        oOperacionEntity.setEmisorCuentaEntity(emisor);
+        oOperacionEntity.setReceptorCuentaEntity(null);
 
-    //     return null;
-    // }
+        return oOperacionRepository.save(oOperacionEntity);
+    }
 
-    // public OperacionEntity transferir() {
+    public OperacionEntity extraer(OperacionEntity oOperacionEntity) throws ValidationException {
+        double retirada = oOperacionEntity.getCantidad();
+        if(retirada<=0){
+            throw new ValidationException("Cantidad incorrecta");
+        }
+        CuentaEntity emisor = oCuentaRepository.findById(oOperacionEntity.getEmisorCuentaEntity().getId()).get();
+        oOperacionEntity.setEmisorCuentaEntity(emisor);
+
+        TipooperacionEntity tipo = oTipooperacionRepository.findById(TipoOperacionHelper.RETIRADA).get();
+        oOperacionEntity.setTipooperacion(tipo);
         
-    //     return null;
-    // }
+        oOperacionEntity.setReceptorCuentaEntity(null);
+
+        validateTransferencia(oOperacionEntity);
+
+        return oOperacionRepository.save(oOperacionEntity);
+    }
+
+    public OperacionEntity transferir(OperacionEntity oOperacionEntity) throws ValidationException {
+        double retirada = oOperacionEntity.getCantidad();
+        if(retirada<=0){
+            throw new ValidationException("Cantidad incorrecta");
+        }
+        CuentaEntity emisor = oCuentaRepository.findById(oOperacionEntity.getEmisorCuentaEntity().getId()).get();
+        oOperacionEntity.setEmisorCuentaEntity(emisor);
+
+        CuentaEntity receptor = oCuentaRepository.findById(oOperacionEntity.getReceptorCuentaEntity().getId()).get();
+        oOperacionEntity.setReceptorCuentaEntity(receptor);
+
+        TipooperacionEntity tipo = oTipooperacionRepository.findById(TipoOperacionHelper.TRANSFERENCIA).get();
+        oOperacionEntity.setTipooperacion(tipo);
+
+        validateTransferencia(oOperacionEntity);
+        return oOperacionRepository.save(oOperacionEntity);
+    }
 }
 

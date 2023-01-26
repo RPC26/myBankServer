@@ -2,6 +2,7 @@ package com.ruben.mybank.entity;
 
 import java.time.LocalDateTime;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
@@ -13,6 +14,8 @@ import javax.persistence.Table;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateTimeSerializer;
 
 @Entity
 @Table(name = "operacion")
@@ -25,7 +28,7 @@ public class OperacionEntity {
 
     private double cantidad;
 
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'")
+    @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss")
     private LocalDateTime fechahoraoperacion;
 
     @ManyToOne(fetch = FetchType.EAGER)
@@ -37,7 +40,7 @@ public class OperacionEntity {
     private CuentaEntity emisorCuentaEntity;
 
     @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "id_cuentareceptor")
+    @JoinColumn(name = "id_cuentareceptor", nullable = true)
     private CuentaEntity receptorCuentaEntity;
 
 

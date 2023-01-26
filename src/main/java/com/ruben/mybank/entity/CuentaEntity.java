@@ -1,6 +1,8 @@
 package com.ruben.mybank.entity;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
@@ -9,6 +11,7 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
@@ -34,9 +37,25 @@ public class CuentaEntity {
     @JoinColumn(name = "id_tipocuenta")
     private TipocuentaEntity tipocuenta;
 
+    @OneToMany(mappedBy = "emisorCuentaEntity", fetch = FetchType.LAZY)
+    private final List<OperacionEntity> operacionesEmisor;
+
+    @OneToMany(mappedBy = "receptorCuentaEntity", fetch = FetchType.LAZY)
+    private final List<OperacionEntity> operacionesReceptor;
+
     private String iban;
 
     public CuentaEntity() {
+        this.operacionesEmisor = new ArrayList<>(); 
+        this.operacionesReceptor = new ArrayList<>();
+    }
+
+    public int getOperacionesEmisor() {
+        return this.operacionesEmisor.size();
+    }
+
+    public int getOperacionesReceptor() {
+        return this.operacionesReceptor.size();
     }
 
     public Long getId() {

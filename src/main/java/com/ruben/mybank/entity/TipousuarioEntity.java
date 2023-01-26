@@ -28,8 +28,6 @@ public class TipousuarioEntity {
     @OneToMany(mappedBy = "tipousuario", fetch = FetchType.LAZY)
     private final List<UsuarioEntity> usuarios;
 
-
-
     public TipousuarioEntity() {
         this.usuarios = new ArrayList<>();
     }

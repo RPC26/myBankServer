@@ -10,6 +10,10 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import com.ruben.mybank.bean.CuentaSaldoBean;
+import com.ruben.mybank.bean.SaldoBean;
+import com.ruben.mybank.entity.CuentaEntity;
+import com.ruben.mybank.entity.OperacionEntity;
 import com.ruben.mybank.entity.UsuarioEntity;
 import com.ruben.mybank.exception.CannotPerformOperationException;
 import com.ruben.mybank.exception.ResourceNotFoundException;
@@ -18,6 +22,8 @@ import com.ruben.mybank.exception.ValidationException;
 import com.ruben.mybank.helper.RandomHelper;
 import com.ruben.mybank.helper.TipoUsuarioHelper;
 import com.ruben.mybank.helper.ValidationHelper;
+import com.ruben.mybank.repository.CuentaRepository;
+import com.ruben.mybank.repository.OperacionRepository;
 import com.ruben.mybank.repository.TipousuarioRepository;
 import com.ruben.mybank.repository.UsuarioRepository;
 
@@ -32,6 +38,12 @@ public class UsuarioService {
 
     @Autowired
     UsuarioRepository oUsuarioRepository;
+
+    @Autowired
+    OperacionRepository oOperacionRepository;
+
+    @Autowired
+    CuentaRepository oCuentaRepository;
 
     @Autowired
     AuthService oAuthService;
@@ -178,6 +190,101 @@ public class UsuarioService {
         } else {
             throw new ResourceNotModifiedException("id " + id + " not exist");
         }
+    }
+
+    public CuentaSaldoBean saldo() {
+        UsuarioEntity usuarioLogueado = oAuthService.check();
+        CuentaSaldoBean saldoCuentaBean = new CuentaSaldoBean();
+
+        List<CuentaEntity> cuentasLogueado = oCuentaRepository.findByUsuarioId(usuarioLogueado.getId());
+
+        List<SaldoBean> cuentasUsuario = new ArrayList<>();
+        for (CuentaEntity cuenta : cuentasLogueado) {
+            SaldoBean saldoCuenta = new SaldoBean();
+            saldoCuenta.setIdCuenta(cuenta.getId());
+
+            List<OperacionEntity> operaciones = oOperacionRepository.allOperacionesCuenta(cuenta.getId(),
+                    cuenta.getId());
+
+            double balanceTotal = 0;
+
+            // Balance de la cuenta
+            for (OperacionEntity operacion : operaciones) {
+
+                Long tipoOperacion = operacion.getTipooperacion().getId();
+                double cantidadOperacion = operacion.getCantidad();
+
+                if (tipoOperacion == 1L) {
+                    balanceTotal += cantidadOperacion;
+                }
+
+                if (tipoOperacion == 2L
+                        || (tipoOperacion == 3L && operacion.getReceptorCuentaEntity().getId() != cuenta.getId())) {
+                    balanceTotal -= cantidadOperacion;
+                }
+
+                if (operacion.getReceptorCuentaEntity() != null
+                        && operacion.getReceptorCuentaEntity().getId() == cuenta.getId()) {
+                    balanceTotal += cantidadOperacion;
+                }
+
+            }
+
+            saldoCuenta.setSaldo(balanceTotal);
+            cuentasUsuario.add(saldoCuenta);
+        }
+
+        saldoCuentaBean.setCuentasUsuario(cuentasUsuario);
+
+        return saldoCuentaBean;
+    }
+
+    public CuentaSaldoBean saldoUsuario(Long id_usuario) {
+        oAuthService.OnlyAdmins();
+        UsuarioEntity usuario = oUsuarioRepository.findById(id_usuario).get();
+        CuentaSaldoBean saldoCuentaBean = new CuentaSaldoBean();
+
+        List<CuentaEntity> cuentasLogueado = oCuentaRepository.findByUsuarioId(usuario.getId());
+
+        List<SaldoBean> cuentasUsuario = new ArrayList<>();
+        for (CuentaEntity cuenta : cuentasLogueado) {
+            SaldoBean saldoCuenta = new SaldoBean();
+            saldoCuenta.setIdCuenta(cuenta.getId());
+
+            List<OperacionEntity> operaciones = oOperacionRepository.allOperacionesCuenta(cuenta.getId(),
+                    cuenta.getId());
+
+            double balanceTotal = 0;
+
+            // Balance de la cuenta
+            for (OperacionEntity operacion : operaciones) {
+
+                Long tipoOperacion = operacion.getTipooperacion().getId();
+                double cantidadOperacion = operacion.getCantidad();
+
+                if (tipoOperacion == 1L) {
+                    balanceTotal += cantidadOperacion;
+                }
+
+                if (tipoOperacion == 2L
+                        || (tipoOperacion == 3L && operacion.getReceptorCuentaEntity().getId() != cuenta.getId())) {
+                    balanceTotal -= cantidadOperacion;
+                }
+
+                if (operacion.getReceptorCuentaEntity() != null
+                        && operacion.getReceptorCuentaEntity().getId() == cuenta.getId()) {
+                    balanceTotal += cantidadOperacion;
+                }
+
+            }
+
+            saldoCuenta.setSaldo(balanceTotal);
+            cuentasUsuario.add(saldoCuenta);
+        }
+
+        saldoCuentaBean.setCuentasUsuario(cuentasUsuario);
+
+        return saldoCuentaBean;
     }
 
     public UsuarioEntity generate() {

@@ -12,12 +12,13 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestAttribute;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.ruben.mybank.bean.CuentaSaldoBean;
+import com.ruben.mybank.bean.SaldoBean;
 import com.ruben.mybank.entity.UsuarioEntity;
 import com.ruben.mybank.service.UsuarioService;
 
@@ -38,6 +39,15 @@ public class UsuarioController {
         return new ResponseEntity<Long>(oUsuarioService.count(), HttpStatus.OK);
     }
     
+    @GetMapping("/saldo")
+    public ResponseEntity<CuentaSaldoBean> saldo() {
+        return new ResponseEntity<>(oUsuarioService.saldo(), HttpStatus.OK);
+    }
+
+    @GetMapping("/{id}/saldo")
+    public ResponseEntity<CuentaSaldoBean> saldoUsuario(@PathVariable(value = "id") Long id_usuario) {
+        return new ResponseEntity<>(oUsuarioService.saldoUsuario(id_usuario), HttpStatus.OK);
+    }
 
   @GetMapping("")
     public ResponseEntity<Page<UsuarioEntity>> getPage(
