@@ -4,6 +4,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
@@ -37,10 +38,10 @@ public class CuentaEntity {
     @JoinColumn(name = "id_tipocuenta")
     private TipocuentaEntity tipocuenta;
 
-    @OneToMany(mappedBy = "emisorCuentaEntity", fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "emisorCuentaEntity", fetch = FetchType.LAZY, cascade = CascadeType.REMOVE, orphanRemoval = true)
     private final List<OperacionEntity> operacionesEmisor;
 
-    @OneToMany(mappedBy = "receptorCuentaEntity", fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "receptorCuentaEntity", fetch = FetchType.LAZY, cascade = CascadeType.REMOVE, orphanRemoval = true)
     private final List<OperacionEntity> operacionesReceptor;
 
     private String iban;

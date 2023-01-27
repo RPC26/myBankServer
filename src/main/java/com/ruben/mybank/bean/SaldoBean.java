@@ -4,7 +4,17 @@ package com.ruben.mybank.bean;
 public class SaldoBean {
 
     private Long idCuenta;
-    private Double saldo;
+    private Double saldoReal;
+    private Double saldoBeneficio;
+
+
+    public Double getSaldoBeneficio() {
+        return this.saldoBeneficio;
+    }
+
+    public void setSaldoBeneficio(Double saldoBenificio) {
+        this.saldoBeneficio = saldoBenificio;
+    }
 
 
     public Long getIdCuenta() {
@@ -15,12 +25,12 @@ public class SaldoBean {
         this.idCuenta = idCuenta;
     }
 
-    public Double getSaldo() {
-        return this.saldo;
+    public Double getSaldoReal() {
+        return this.saldoReal;
     }
 
-    public void setSaldo(Double saldo) {
-        this.saldo = saldo;
+    public void setSaldoReal(Double saldo) {
+        this.saldoReal = saldo;
     }
 
 }

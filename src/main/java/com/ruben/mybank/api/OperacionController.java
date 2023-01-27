@@ -39,23 +39,23 @@ public class OperacionController {
         return new ResponseEntity<Long>(oOperacionService.count(), HttpStatus.OK);
     }
 
-    @GetMapping("")
+    @GetMapping
     public ResponseEntity<Page<OperacionEntity>> getPage(
             @PageableDefault(page = 0, size = 10, direction = Sort.Direction.DESC) Pageable oPageable,
             @RequestParam(name = "filter", required = false) String strFilter,
             @RequestParam(name = "tipoOperacion", required = false) Long id_tipoOperacion,
-            @RequestParam(name = "cuenta", required = false) Long id_cuentaemisor ,
-            @RequestParam(name = "cuenta", required = false) Long id_cuentareceptor ) {
+            @RequestParam(name = "cuentaEmisor", required = false) Long id_cuentaemisor ,
+            @RequestParam(name = "cuentaReceptor", required = false) Long id_cuentareceptor ) {
         return new ResponseEntity<Page<OperacionEntity>>(
                 oOperacionService.getPage(oPageable, strFilter, id_tipoOperacion, id_cuentaemisor,id_cuentareceptor ), HttpStatus.OK);
     }
 
-    @PostMapping("/")
+    @PostMapping
     public ResponseEntity<Long> create(@RequestBody OperacionEntity oNewOperacionEntity) {
         return new ResponseEntity<Long>(oOperacionService.create(oNewOperacionEntity), HttpStatus.OK);
     }
 
-    @PutMapping("/")
+    @PutMapping
     public ResponseEntity<Long> update(@RequestBody OperacionEntity oOperacionEntity) {
         return new ResponseEntity<Long>(oOperacionService.update(oOperacionEntity), HttpStatus.OK);
     }

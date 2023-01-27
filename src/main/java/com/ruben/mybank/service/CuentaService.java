@@ -140,7 +140,6 @@ public class CuentaService {
 
     public Long create(CuentaEntity oNewCuentaEntity) {
         // oAuthService.OnlyAdmins();
-        validate2(oNewCuentaEntity);
         oNewCuentaEntity.setId(0L);
         oNewCuentaEntity.setFechacreacion(LocalDateTime.now());
         return oCuentaRepository.save(oNewCuentaEntity).getId();

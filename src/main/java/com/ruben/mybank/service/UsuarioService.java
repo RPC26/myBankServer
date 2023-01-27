@@ -20,6 +20,7 @@ import com.ruben.mybank.exception.ResourceNotFoundException;
 import com.ruben.mybank.exception.ResourceNotModifiedException;
 import com.ruben.mybank.exception.ValidationException;
 import com.ruben.mybank.helper.RandomHelper;
+import com.ruben.mybank.helper.TipoCuentaHelper;
 import com.ruben.mybank.helper.TipoUsuarioHelper;
 import com.ruben.mybank.helper.ValidationHelper;
 import com.ruben.mybank.repository.CuentaRepository;
@@ -230,7 +231,7 @@ public class UsuarioService {
 
             }
 
-            saldoCuenta.setSaldo(balanceTotal);
+            saldoCuenta.setSaldoReal(balanceTotal);
             cuentasUsuario.add(saldoCuenta);
         }
 
@@ -255,7 +256,7 @@ public class UsuarioService {
                     cuenta.getId());
 
             double balanceTotal = 0;
-
+            
             // Balance de la cuenta
             for (OperacionEntity operacion : operaciones) {
 
@@ -278,7 +279,23 @@ public class UsuarioService {
 
             }
 
-            saldoCuenta.setSaldo(balanceTotal);
+            Long idTipocuenta = cuenta.getTipocuenta().getId();
+            double balanceBeneficio = 0;
+
+            if (idTipocuenta == TipoCuentaHelper.NEGOCIOS) {
+                double porcentaje = (balanceTotal * 0.5);
+
+                balanceBeneficio = balanceTotal + porcentaje;
+            }
+
+             if (idTipocuenta == TipoCuentaHelper.CORRIENTE) {
+                double porcentaje = (balanceTotal * 0.3);
+
+                balanceBeneficio = balanceTotal + porcentaje;
+            }
+            
+            saldoCuenta.setSaldoBeneficio(balanceBeneficio);
+            saldoCuenta.setSaldoReal(balanceTotal);
             cuentasUsuario.add(saldoCuenta);
         }
 

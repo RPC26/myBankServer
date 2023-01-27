@@ -2,6 +2,7 @@ package com.ruben.mybank.entity;
 
 import java.util.List;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
@@ -40,7 +41,7 @@ public class UsuarioEntity {
     @JoinColumn(name = "id_tipousuario")
     private TipousuarioEntity tipousuario;
 
-    @OneToMany(mappedBy = "usuario", fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "usuario", fetch = FetchType.LAZY, cascade = CascadeType.REMOVE, orphanRemoval = true)
     private List<CuentaEntity> cuentas;
 
 

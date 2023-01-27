@@ -14,8 +14,6 @@ import javax.persistence.Table;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateTimeSerializer;
 
 @Entity
 @Table(name = "operacion")
@@ -42,10 +40,6 @@ public class OperacionEntity {
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "id_cuentareceptor", nullable = true)
     private CuentaEntity receptorCuentaEntity;
-
-
-    public OperacionEntity() {
-    }
 
     public Long getId() {
         return this.id;

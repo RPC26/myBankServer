@@ -53,7 +53,7 @@ public class OperacionService {
     public void validateExistsTransferencia(OperacionEntity oOperacionEntity) {
         Long idCuentaEmisor = oOperacionEntity.getEmisorCuentaEntity().getId();
         Long idCuentaReceptor = oOperacionEntity.getReceptorCuentaEntity().getId();
-        
+
         if (!oOperacionRepository.existsByEmisorCuentaEntityId(idCuentaEmisor)) {
             throw new ResourceNotFoundException(
                     "id CuentaEmisor " + idCuentaEmisor + " not exist" + "or id CuentaReceptor" + idCuentaReceptor);
@@ -67,25 +67,25 @@ public class OperacionService {
         double balanceTotal = 0;
 
         // Balance del emisor
-        for (OperacionEntity operacion: operacionesEmisor) {
+        for (OperacionEntity operacion : operacionesEmisor) {
 
             Long tipoOperacion = operacion.getTipooperacion().getId();
             double cantidadOperacion = operacion.getCantidad();
-            
+
             if (tipoOperacion == 1L) {
                 balanceTotal += cantidadOperacion;
             }
 
-            if (tipoOperacion == 2L || (tipoOperacion == 3L && operacion.getReceptorCuentaEntity().getId() != idEmisor)) {
+            if (tipoOperacion == 2L
+                    || (tipoOperacion == 3L && operacion.getReceptorCuentaEntity().getId() != idEmisor)) {
                 balanceTotal -= cantidadOperacion;
             }
 
-            if (operacion.getReceptorCuentaEntity() != null && operacion.getReceptorCuentaEntity().getId() == idEmisor) {
+            if (operacion.getReceptorCuentaEntity() != null
+                    && operacion.getReceptorCuentaEntity().getId() == idEmisor) {
                 balanceTotal += cantidadOperacion;
             }
         }
-
-        System.out.println(balanceTotal);
 
         double maxNegativoEmisor = oOperacionEntity.getEmisorCuentaEntity().getTipocuenta().getMaxnegativo();
         double cantidadTransferencia = oOperacionEntity.getCantidad();
@@ -98,7 +98,7 @@ public class OperacionService {
     public OperacionEntity get(Long id) {
         // oAuthService.OnlyAdmins();
         OperacionEntity o = oOperacionRepository.findById(id)
-            .orElseThrow(() -> new ResourceNotFoundException("id " + id + " not exist"));
+                .orElseThrow(() -> new ResourceNotFoundException("id " + id + " not exist"));
 
         return o;
     }
@@ -108,7 +108,8 @@ public class OperacionService {
         return oOperacionRepository.count();
     }
 
-    public Page<OperacionEntity> getPage(Pageable oPageable, String strFilter, Long id_tipoOperacion, Long id_cuentaemisor, Long id_cuentareceptor ) {
+    public Page<OperacionEntity> getPage(Pageable oPageable, String strFilter, Long id_tipoOperacion,
+            Long id_cuentaemisor, Long id_cuentareceptor) {
         oAuthService.OnlyAdmins();
         ValidationHelper.validateRPP(oPageable.getPageSize());
         Page<OperacionEntity> oPage = null;
@@ -119,51 +120,62 @@ public class OperacionService {
                 oPage = oOperacionRepository.findByReceptorCuentaEntityId(id_cuentareceptor, oPageable);
             }
 
-            oPage = oOperacionRepository.findByReceptorCuentaEntityIdAndCantidadContainingOrFechahoraoperacionContaining(id_cuentareceptor, strFilter, strFilter, oPageable);
+            oPage = oOperacionRepository.findByReceptorCuentaEntityIdAndFechahoraoperacionContaining(id_cuentareceptor,
+                    strFilter, oPageable);
         }
 
         // Pasando id_emisor y id_receptor
         if (id_tipoOperacion == null && id_cuentaemisor != null && id_cuentareceptor != null) {
             if (strFilter == null || strFilter.isEmpty() || strFilter.trim().isEmpty()) {
-                oPage = oOperacionRepository.findByReceptorCuentaEntityIdAndEmisorCuentaEntityId(id_cuentareceptor, id_cuentaemisor, oPageable);
+                oPage = oOperacionRepository.findByReceptorCuentaEntityIdAndEmisorCuentaEntityId(id_cuentareceptor,
+                        id_cuentaemisor, oPageable);
             }
 
-            oPage = oOperacionRepository.findByReceptorCuentaEntityIdAndEmisorCuentaEntityIdAndCantidadContainingOrFechahoraoperacionContaining(id_cuentareceptor, id_cuentaemisor, strFilter, strFilter, oPageable);
+            oPage = oOperacionRepository
+                    .findByReceptorCuentaEntityIdAndEmisorCuentaEntityIdAndFechahoraoperacionContaining(
+                            id_cuentareceptor, id_cuentaemisor, strFilter, oPageable);
         }
 
         // Pasando id_emisor, id_receptor y id_tipocuenta
         if (id_tipoOperacion != null && id_cuentaemisor != null && id_cuentareceptor != null) {
             if (strFilter == null || strFilter.isEmpty() || strFilter.trim().isEmpty()) {
-                oPage = oOperacionRepository.findByReceptorCuentaEntityIdAndEmisorCuentaEntityIdAndTipooperacionId(id_cuentareceptor, id_cuentaemisor, id_tipoOperacion, oPageable);
+                oPage = oOperacionRepository.findByReceptorCuentaEntityIdAndEmisorCuentaEntityIdAndTipooperacionId(
+                        id_cuentareceptor, id_cuentaemisor, id_tipoOperacion, oPageable);
             }
 
-            oPage = oOperacionRepository.findByReceptorCuentaEntityIdAndEmisorCuentaEntityIdAndTipooperacionIdAndCantidadContainingOrFechahoraoperacionContaining(id_cuentareceptor, id_cuentaemisor, id_tipoOperacion, strFilter, strFilter, oPageable);
+            oPage = oOperacionRepository
+                    .findByReceptorCuentaEntityIdAndEmisorCuentaEntityIdAndTipooperacionIdAndFechahoraoperacionContaining(
+                            id_cuentareceptor, id_cuentaemisor, id_tipoOperacion, strFilter, oPageable);
         }
 
         // Pasando solo id_tipooperacion
         if (id_tipoOperacion != null && id_cuentaemisor == null && id_cuentareceptor == null) {
             if (strFilter == null || strFilter.isEmpty() || strFilter.trim().isEmpty()) {
-                oPage= oOperacionRepository.findByTipooperacionId(id_tipoOperacion, oPageable);
+                oPage = oOperacionRepository.findByTipooperacionId(id_tipoOperacion, oPageable);
+            }
+            oPage = oOperacionRepository.findByTipooperacionIdAndFechahoraoperacionContaining(id_tipoOperacion,
+                    strFilter, oPageable);
+
         }
-        oPage = oOperacionRepository.findByTipooperacionIdAndCantidadContainingOrFechahoraoperacionContaining(id_tipoOperacion,strFilter,strFilter,oPageable);
-    
-    }
 
         // Pasando id_tipooperacion y id_cuentaemisor
         if (id_tipoOperacion != null && id_cuentaemisor != null && id_cuentareceptor == null) {
             if (strFilter == null || strFilter.isEmpty() || strFilter.trim().isEmpty()) {
-                oPage=oOperacionRepository.findByTipooperacionIdAndEmisorCuentaEntityId(id_tipoOperacion,id_cuentaemisor,oPageable);
+                oPage = oOperacionRepository.findByTipooperacionIdAndEmisorCuentaEntityId(id_tipoOperacion,
+                        id_cuentaemisor, oPageable);
             }
-            oPage=oOperacionRepository.findByTipooperacionIdAndEmisorCuentaEntityIdAndCantidadContainingOrFechahoraoperacionContaining(id_tipoOperacion,id_cuentaemisor,strFilter,strFilter,oPageable);
+            oPage = oOperacionRepository.findByTipooperacionIdAndEmisorCuentaEntityIdAndFechahoraoperacionContaining(
+                    id_tipoOperacion, id_cuentaemisor, strFilter, oPageable);
         }
 
         // Pasando solo id_cuentaemisor
         if (id_tipoOperacion == null && id_cuentaemisor != null && id_cuentareceptor == null) {
 
             if (strFilter == null || strFilter.isEmpty() || strFilter.trim().isEmpty()) {
-                oPage=oOperacionRepository.findByEmisorCuentaEntityId(id_cuentaemisor,oPageable);
+                oPage = oOperacionRepository.findByEmisorCuentaEntityId(id_cuentaemisor, oPageable);
             }
-            oPage=oOperacionRepository.findByEmisorCuentaEntityIdAndCantidadContainingOrFechahoraoperacionContaining(id_cuentaemisor,strFilter,strFilter,oPageable);
+            oPage = oOperacionRepository.findByEmisorCuentaEntityIdAndFechahoraoperacionContaining(id_cuentaemisor,
+                    strFilter, oPageable);
 
         }
 
@@ -171,9 +183,12 @@ public class OperacionService {
         if (id_tipoOperacion == null && id_cuentaemisor != null && id_cuentareceptor != null) {
 
             if (strFilter == null || strFilter.isEmpty() || strFilter.trim().isEmpty()) {
-                oPage=oOperacionRepository.findByEmisorCuentaEntityIdAndReceptorCuentaEntityId(id_cuentaemisor,id_cuentareceptor,oPageable);
+                oPage = oOperacionRepository.findByEmisorCuentaEntityIdAndReceptorCuentaEntityId(id_cuentaemisor,
+                        id_cuentareceptor, oPageable);
             }
-            oPage=oOperacionRepository.findByEmisorCuentaEntityIdAndReceptorCuentaEntityIdAndCantidadContainingOrFechahoraoperacionContaining(id_cuentaemisor,id_cuentareceptor,strFilter,strFilter,oPageable);
+            oPage = oOperacionRepository
+                    .findByEmisorCuentaEntityIdAndReceptorCuentaEntityIdAndFechahoraoperacionContaining(id_cuentaemisor,
+                            id_cuentareceptor, strFilter, oPageable);
 
         }
 
@@ -181,9 +196,10 @@ public class OperacionService {
         if (id_tipoOperacion == null && id_cuentaemisor == null && id_cuentareceptor == null) {
 
             if (strFilter == null || strFilter.isEmpty() || strFilter.trim().isEmpty()) {
-                oPage=oOperacionRepository.findAll( oPageable);
+                System.out.println("sin filtroesdfsdas");
+                oPage = oOperacionRepository.findAll(oPageable);
             }
-            oPage=oOperacionRepository.findByCantidadContainingOrFechahoraoperacionContaining(strFilter,strFilter,oPageable);
+            oPage = oOperacionRepository.findByFechahoraoperacionContaining(strFilter, oPageable);
 
         }
 
@@ -203,8 +219,6 @@ public class OperacionService {
         return update4Admins(oOperacionEntity).getId();
     }
 
-
-    
     @Transactional
     private OperacionEntity update4Admins(OperacionEntity oUpdatedOperacionEntity) {
         oAuthService.OnlyAdmins();
@@ -247,7 +261,7 @@ public class OperacionService {
         oOperacionEntity.setCantidad(RandomHelper.getRadomDouble(1000, 99999));
 
         return oOperacionEntity;
-    }    
+    }
 
     public Long generateSome(Integer amount) {
         oAuthService.OnlyAdmins();
@@ -262,7 +276,7 @@ public class OperacionService {
 
     public OperacionEntity ingresar(OperacionEntity oOperacionEntity) throws ValidationException {
         double ingreso = oOperacionEntity.getCantidad();
-        if(ingreso<=0){
+        if (ingreso <= 0) {
             throw new ValidationException("Cantidad incorrecta");
         }
         TipooperacionEntity tipo = oTipooperacionRepository.findById(TipoOperacionHelper.INGRESO).get();
@@ -278,7 +292,7 @@ public class OperacionService {
 
     public OperacionEntity extraer(OperacionEntity oOperacionEntity) throws ValidationException {
         double retirada = oOperacionEntity.getCantidad();
-        if(retirada<=0){
+        if (retirada <= 0) {
             throw new ValidationException("Cantidad incorrecta");
         }
         CuentaEntity emisor = oCuentaRepository.findById(oOperacionEntity.getEmisorCuentaEntity().getId()).get();
@@ -286,7 +300,7 @@ public class OperacionService {
 
         TipooperacionEntity tipo = oTipooperacionRepository.findById(TipoOperacionHelper.RETIRADA).get();
         oOperacionEntity.setTipooperacion(tipo);
-        
+
         oOperacionEntity.setReceptorCuentaEntity(null);
 
         validateTransferencia(oOperacionEntity);
@@ -296,7 +310,7 @@ public class OperacionService {
 
     public OperacionEntity transferir(OperacionEntity oOperacionEntity) throws ValidationException {
         double retirada = oOperacionEntity.getCantidad();
-        if(retirada<=0){
+        if (retirada <= 0) {
             throw new ValidationException("Cantidad incorrecta");
         }
         CuentaEntity emisor = oCuentaRepository.findById(oOperacionEntity.getEmisorCuentaEntity().getId()).get();
@@ -312,4 +326,3 @@ public class OperacionService {
         return oOperacionRepository.save(oOperacionEntity);
     }
 }
-

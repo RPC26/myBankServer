@@ -3,6 +3,7 @@ package com.ruben.mybank.entity;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
@@ -25,7 +26,7 @@ public class TipooperacionEntity {
 
     private String nombre;
 
-    @OneToMany(mappedBy = "tipooperacion", fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "tipooperacion", fetch = FetchType.LAZY, cascade = CascadeType.REMOVE)
     private final List<OperacionEntity> operacion;
 
 

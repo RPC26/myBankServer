@@ -47,12 +47,12 @@ public class CuentaController {
         return new ResponseEntity<Page<CuentaEntity>>(oCuentaService.getPage(oPageable, strFilter, id_tipocuenta, id_usuario), HttpStatus.OK);
     }
 
-    @PostMapping("/")
+    @PostMapping
     public ResponseEntity<Long> create(@RequestBody CuentaEntity oNewCuentaEntity) {
         return new ResponseEntity<Long>(oCuentaService.create(oNewCuentaEntity), HttpStatus.OK);
     }
 
-    @PutMapping("/")
+    @PutMapping
     public ResponseEntity<Long> update(@RequestBody CuentaEntity oCuentaEntity) {
         return new ResponseEntity<Long>(oCuentaService.update(oCuentaEntity), HttpStatus.OK);
     }
