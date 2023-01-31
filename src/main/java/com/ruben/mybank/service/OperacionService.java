@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service;
 
 import com.ruben.mybank.entity.CuentaEntity;
 import com.ruben.mybank.entity.OperacionEntity;
+import com.ruben.mybank.entity.TipocuentaEntity;
 import com.ruben.mybank.entity.TipooperacionEntity;
 import com.ruben.mybank.entity.OperacionEntity;
 import com.ruben.mybank.entity.UsuarioEntity;
@@ -208,15 +209,39 @@ public class OperacionService {
 
     public Long create(OperacionEntity oNewOperacionEntity) {
         // oAuthService.OnlyAdmins();
+        
+        CuentaEntity emisor = oCuentaRepository.findById(oNewOperacionEntity.getEmisorCuentaEntity().getId()).get();
+        TipooperacionEntity tipooperacion = oTipooperacionRepository.findById(oNewOperacionEntity.getTipooperacion().getId()).get();
+
+        if (oNewOperacionEntity.getReceptorCuentaEntity() != null) {
+            CuentaEntity receptor = oCuentaRepository.findById(oNewOperacionEntity.getReceptorCuentaEntity().getId()).get();
+            oNewOperacionEntity.setReceptorCuentaEntity(receptor);
+        }
+
+        oNewOperacionEntity.setEmisorCuentaEntity(emisor);
+        oNewOperacionEntity.setTipooperacion(tipooperacion);
+
         validateTransferencia(oNewOperacionEntity);
         return oOperacionRepository.save(oNewOperacionEntity).getId();
     }
 
     @Transactional
     public Long update(OperacionEntity oOperacionEntity) {
+        oAuthService.OnlyAdmins();
         validate(oOperacionEntity.getId());
+
+        CuentaEntity emisor = oCuentaRepository.findById(oOperacionEntity.getEmisorCuentaEntity().getId()).get();
+        TipooperacionEntity tipooperacion = oTipooperacionRepository.findById(oOperacionEntity.getTipooperacion().getId()).get();
+
+        if (oOperacionEntity.getReceptorCuentaEntity() != null) {
+            CuentaEntity receptor = oCuentaRepository.findById(oOperacionEntity.getReceptorCuentaEntity().getId()).get();
+            oOperacionEntity.setReceptorCuentaEntity(receptor);
+        }
+
+        oOperacionEntity.setEmisorCuentaEntity(emisor);
+        oOperacionEntity.setTipooperacion(tipooperacion);
         validateTransferencia(oOperacionEntity);
-        return update4Admins(oOperacionEntity).getId();
+        return oOperacionRepository.save(oOperacionEntity).getId();
     }
 
     @Transactional
