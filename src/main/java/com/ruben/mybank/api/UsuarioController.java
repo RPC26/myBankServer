@@ -17,8 +17,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.ruben.mybank.bean.CuentaSaldoBean;
-import com.ruben.mybank.bean.SaldoBean;
+import com.ruben.mybank.bean.SaldoUsuario;
+import com.ruben.mybank.bean.SaldoCuenta;
 import com.ruben.mybank.entity.UsuarioEntity;
 import com.ruben.mybank.service.UsuarioService;
 
@@ -40,12 +40,12 @@ public class UsuarioController {
     }
     
     @GetMapping("/saldo")
-    public ResponseEntity<CuentaSaldoBean> saldo() {
+    public ResponseEntity<SaldoUsuario> saldo() {
         return new ResponseEntity<>(oUsuarioService.saldo(), HttpStatus.OK);
     }
 
     @GetMapping("/{id}/saldo")
-    public ResponseEntity<CuentaSaldoBean> saldoUsuario(@PathVariable(value = "id") Long id_usuario) {
+    public ResponseEntity<SaldoUsuario> saldoUsuario(@PathVariable(value = "id") Long id_usuario) {
         return new ResponseEntity<>(oUsuarioService.saldoUsuario(id_usuario), HttpStatus.OK);
     }
 

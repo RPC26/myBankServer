@@ -197,7 +197,6 @@ public class OperacionService {
         if (id_tipoOperacion == null && id_cuentaemisor == null && id_cuentareceptor == null) {
 
             if (strFilter == null || strFilter.isEmpty() || strFilter.trim().isEmpty()) {
-                System.out.println("sin filtroesdfsdas");
                 oPage = oOperacionRepository.findAll(oPageable);
             }
             oPage = oOperacionRepository.findByFechahoraoperacionContaining(strFilter, oPageable);

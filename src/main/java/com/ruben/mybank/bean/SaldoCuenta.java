@@ -1,7 +1,7 @@
 package com.ruben.mybank.bean;
 
 
-public class SaldoBean {
+public class SaldoCuenta {
 
     private Long idCuenta;
     private Double saldoReal;

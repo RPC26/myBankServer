@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.data.domain.Sort;
 
+import com.ruben.mybank.bean.SaldoCuenta;
 import com.ruben.mybank.entity.CuentaEntity;
 import com.ruben.mybank.service.CuentaService;
 
@@ -38,13 +39,18 @@ public class CuentaController {
         return new ResponseEntity<Long>(oCuentaService.count(), HttpStatus.OK);
     }
 
-    @GetMapping("")
+    @GetMapping
     public ResponseEntity<Page<CuentaEntity>> getPage(
              @PageableDefault(page = 0, size = 10, direction = Sort.Direction.DESC) Pageable oPageable,
             @RequestParam(name = "filter", required = false) String strFilter,
             @RequestParam(name = "tipocuenta", required = false) Long id_tipocuenta,
             @RequestParam(name = "usuario", required = false) Long id_usuario) {
         return new ResponseEntity<Page<CuentaEntity>>(oCuentaService.getPage(oPageable, strFilter, id_tipocuenta, id_usuario), HttpStatus.OK);
+    }
+
+    @GetMapping("/{id}/saldo")
+    public ResponseEntity<SaldoCuenta> saldo(@PathVariable(value = "id") Long id) {
+        return new ResponseEntity<>(oCuentaService.saldo(id), HttpStatus.OK);
     }
 
     @PostMapping

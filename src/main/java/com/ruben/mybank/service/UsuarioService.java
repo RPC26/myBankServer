@@ -10,8 +10,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
-import com.ruben.mybank.bean.CuentaSaldoBean;
-import com.ruben.mybank.bean.SaldoBean;
+import com.ruben.mybank.bean.SaldoUsuario;
+import com.ruben.mybank.bean.SaldoCuenta;
 import com.ruben.mybank.entity.CuentaEntity;
 import com.ruben.mybank.entity.OperacionEntity;
 import com.ruben.mybank.entity.UsuarioEntity;
@@ -193,15 +193,15 @@ public class UsuarioService {
         }
     }
 
-    public CuentaSaldoBean saldo() {
+    public SaldoUsuario saldo() {
         UsuarioEntity usuarioLogueado = oAuthService.check();
-        CuentaSaldoBean saldoCuentaBean = new CuentaSaldoBean();
+        SaldoUsuario saldoCuentaBean = new SaldoUsuario();
 
         List<CuentaEntity> cuentasLogueado = oCuentaRepository.findByUsuarioId(usuarioLogueado.getId());
 
-        List<SaldoBean> cuentasUsuario = new ArrayList<>();
+        List<SaldoCuenta> cuentasUsuario = new ArrayList<>();
         for (CuentaEntity cuenta : cuentasLogueado) {
-            SaldoBean saldoCuenta = new SaldoBean();
+            SaldoCuenta saldoCuenta = new SaldoCuenta();
             saldoCuenta.setIdCuenta(cuenta.getId());
 
             List<OperacionEntity> operaciones = oOperacionRepository.allOperacionesCuenta(cuenta.getId(),
@@ -240,16 +240,16 @@ public class UsuarioService {
         return saldoCuentaBean;
     }
 
-    public CuentaSaldoBean saldoUsuario(Long id_usuario) {
+    public SaldoUsuario saldoUsuario(Long id_usuario) {
         oAuthService.OnlyAdmins();
         UsuarioEntity usuario = oUsuarioRepository.findById(id_usuario).get();
-        CuentaSaldoBean saldoCuentaBean = new CuentaSaldoBean();
+        SaldoUsuario saldoCuentaBean = new SaldoUsuario();
 
         List<CuentaEntity> cuentasLogueado = oCuentaRepository.findByUsuarioId(usuario.getId());
 
-        List<SaldoBean> cuentasUsuario = new ArrayList<>();
+        List<SaldoCuenta> cuentasUsuario = new ArrayList<>();
         for (CuentaEntity cuenta : cuentasLogueado) {
-            SaldoBean saldoCuenta = new SaldoBean();
+            SaldoCuenta saldoCuenta = new SaldoCuenta();
             saldoCuenta.setIdCuenta(cuenta.getId());
 
             List<OperacionEntity> operaciones = oOperacionRepository.allOperacionesCuenta(cuenta.getId(),

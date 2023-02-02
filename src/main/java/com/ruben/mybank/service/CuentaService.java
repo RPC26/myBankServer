@@ -5,8 +5,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
-import com.ruben.mybank.bean.CuentaSaldoBean;
-import com.ruben.mybank.bean.SaldoBean;
+import com.ruben.mybank.bean.SaldoUsuario;
+import com.ruben.mybank.bean.SaldoCuenta;
 import com.ruben.mybank.entity.CuentaEntity;
 import com.ruben.mybank.entity.OperacionEntity;
 import com.ruben.mybank.entity.UsuarioEntity;
@@ -123,7 +123,8 @@ public class CuentaService {
                 oPage = oCuentaRepository.findByTipocuentaIdAndUsuarioId(id_tipocuenta, id_usuario, oPageable);
             }
 
-            oPage = oCuentaRepository.findByTipocuentaIdAndUsuarioIdAndIbanIgnoreCaseContaining(id_tipocuenta, id_usuario, strFilter, oPageable);
+            oPage = oCuentaRepository.findByTipocuentaIdAndUsuarioIdAndIbanIgnoreCaseContaining(id_tipocuenta,
+                    id_usuario, strFilter, oPageable);
         }
 
         // Pasando nada
@@ -232,5 +233,58 @@ public class CuentaService {
         }
         oCuentaRepository.saveAll(cuentaList);
         return oCuentaRepository.count();
+    }
+
+    public SaldoCuenta saldo(Long id) {
+
+        CuentaEntity cuenta = oCuentaRepository.findById(id).get();
+        SaldoCuenta saldoCuenta = new SaldoCuenta();
+        saldoCuenta.setIdCuenta(id);
+
+        List<OperacionEntity> operaciones = oOperacionRepository.allOperacionesCuenta(cuenta.getId(),
+                cuenta.getId());
+
+        double balanceTotal = 0;
+
+        // Balance de la cuenta
+        for (OperacionEntity operacion : operaciones) {
+
+            Long tipoOperacion = operacion.getTipooperacion().getId();
+            double cantidadOperacion = operacion.getCantidad();
+
+            if (tipoOperacion == 1L) {
+                balanceTotal += cantidadOperacion;
+            }
+
+            if (tipoOperacion == 2L
+                    || (tipoOperacion == 3L && operacion.getReceptorCuentaEntity().getId() != cuenta.getId())) {
+                balanceTotal -= cantidadOperacion;
+            }
+
+            if (operacion.getReceptorCuentaEntity() != null
+                    && operacion.getReceptorCuentaEntity().getId() == cuenta.getId()) {
+                balanceTotal += cantidadOperacion;
+            }
+        }
+
+        Long idTipocuenta = cuenta.getTipocuenta().getId();
+        double balanceBeneficio = 0;
+
+        if (idTipocuenta == TipoCuentaHelper.NEGOCIOS) {
+            double porcentaje = (balanceTotal * 0.5);
+
+            balanceBeneficio = balanceTotal + porcentaje;
+        }
+
+         if (idTipocuenta == TipoCuentaHelper.CORRIENTE) {
+            double porcentaje = (balanceTotal * 0.3);
+
+            balanceBeneficio = balanceTotal + porcentaje;
+        }
+        
+        saldoCuenta.setSaldoBeneficio(balanceBeneficio);
+        saldoCuenta.setSaldoReal(balanceTotal);
+
+        return saldoCuenta;
     }
 }
