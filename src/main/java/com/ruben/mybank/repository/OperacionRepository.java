@@ -1,5 +1,6 @@
 package com.ruben.mybank.repository;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 import org.springframework.data.domain.Page;
@@ -70,5 +71,14 @@ public interface OperacionRepository extends JpaRepository<OperacionEntity, Long
 
         @Query(value = "SELECT * FROM operacion WHERE id_cuentaemisor = ?1 OR id_cuentareceptor = ?2", nativeQuery = true)
         List<OperacionEntity> allOperacionesCuenta(Long idEmisor, Long idEmisor2);
+
+        @Query(value = "SELECT * FROM operacion WHERE fechahoraoperacion LIKE %?1%", nativeQuery = true)
+        List<OperacionEntity> allOperacionesHoy(String hoy);
+
+        @Query(value = "SELECT COUNT(*) FROM operacion WHERE fechahoraoperacion LIKE %?2% AND id_tipooperacion = ?1 AND (id_cuentaemisor = ?3 OR id_cuentareceptor = ?3)", nativeQuery = true)
+        Integer operacionPorTipoMesCuenta(Long id_tipooperacion, String fecha, Long id_cuenta);
+
+        @Query(value = "SELECT COUNT(*) FROM operacion WHERE fechahoraoperacion LIKE %?2% AND id_tipooperacion = ?1", nativeQuery = true)
+        Integer operacionPorTipoMes(Long id_tipooperacion, String fecha);
 
 }

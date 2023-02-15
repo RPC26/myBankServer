@@ -18,7 +18,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.data.domain.Sort;
+import java.util.List;
 
+import com.ruben.mybank.bean.OperacionesDashboard;
 import com.ruben.mybank.entity.OperacionEntity;
 import com.ruben.mybank.service.OperacionService;
 
@@ -37,6 +39,21 @@ public class OperacionController {
     @GetMapping("/count")
     public ResponseEntity<Long> count() {
         return new ResponseEntity<Long>(oOperacionService.count(), HttpStatus.OK);
+    }
+
+    @GetMapping("/operacionesHoy")
+    public ResponseEntity<Integer> allOperaciones() {
+        return new ResponseEntity<>(oOperacionService.operacionesHoy(), HttpStatus.OK);
+    }
+
+    @GetMapping("/dashboard/operaciones")
+    public ResponseEntity<List<OperacionesDashboard>> operacionesGrafica() {
+        return new ResponseEntity<>(oOperacionService.getAllOperaciones(0L),HttpStatus.OK);
+    }
+
+    @GetMapping("/dashboard/operaciones/{id}")
+    public ResponseEntity<List<OperacionesDashboard>> operacionesGrafica(@PathVariable(value = "id") Long id) {
+        return new ResponseEntity<>(oOperacionService.getAllOperaciones(id),HttpStatus.OK);
     }
 
     @GetMapping

@@ -30,6 +30,8 @@ public class CuentaEntity {
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'")
     private LocalDateTime fechacreacion;
 
+    private boolean activa;
+
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "id_usuario")
     private UsuarioEntity usuario;
@@ -49,6 +51,14 @@ public class CuentaEntity {
     public CuentaEntity() {
         this.operacionesEmisor = new ArrayList<>(); 
         this.operacionesReceptor = new ArrayList<>();
+    }
+
+    public boolean isActiva() {
+        return activa;
+    }
+
+    public void setActiva(boolean activa) {
+        this.activa = activa;
     }
 
     public int getOperacionesEmisor() {

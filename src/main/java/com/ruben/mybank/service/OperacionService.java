@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import com.ruben.mybank.bean.OperacionesDashboard;
 
 import com.ruben.mybank.entity.CuentaEntity;
 import com.ruben.mybank.entity.OperacionEntity;
@@ -21,8 +22,10 @@ import com.ruben.mybank.repository.CuentaRepository;
 import com.ruben.mybank.repository.OperacionRepository;
 import com.ruben.mybank.repository.TipooperacionRepository;
 import com.ruben.mybank.repository.UsuarioRepository;
+import com.ruben.mybank.helper.TipoOperacionHelper;
 
 import java.time.LocalDateTime;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -61,8 +64,68 @@ public class OperacionService {
         }
     }
 
+    public int operacionesHoy() {
+        LocalDateTime hoy = LocalDateTime.now();
+        String hoyString = hoy.toString();
+        String[] formatted = hoyString.split("[T]");
+
+        List<OperacionEntity> operacionesHoy = oOperacionRepository.allOperacionesHoy(formatted[0]);
+
+        return operacionesHoy.size();
+    }
+
+    public List<OperacionesDashboard> getAllOperaciones(Long id_cuenta) {
+        List<OperacionesDashboard> datasetsAll = new ArrayList<>();
+
+        String[] tipoOperaciones = {"Ingreso", "Retirada", "Transferencia"};
+
+        for (int i = 1 ; i <= 3 ; i++) {
+            OperacionesDashboard dataset = new OperacionesDashboard();
+            dataset.setLabel(tipoOperaciones[i - 1]);
+
+            List<Integer> data = new ArrayList<>();
+
+            LocalDate añoActual = LocalDate.now();
+            String fechaString = añoActual.toString();
+            String[] añoString = fechaString.split("[-]");
+            
+            for (int j = 1; j <= 12; j++) {
+
+                String mes = "";
+
+                if (j < 10) {
+                    mes = añoString[0] + "-0" + j;
+                } else {
+                    mes = añoString[0] + "-" + j;
+                }
+                
+                Integer countOperacionesMes = null;
+                
+                if (id_cuenta != 0L) {
+                    countOperacionesMes = oOperacionRepository.operacionPorTipoMesCuenta(Long.valueOf(i), mes, id_cuenta);
+                } else {
+                    countOperacionesMes = oOperacionRepository.operacionPorTipoMes(Long.valueOf(i), mes);
+                }
+
+                data.add(countOperacionesMes); 
+            }
+
+            dataset.setData(data);
+            datasetsAll.add(dataset);
+        }
+
+        return datasetsAll;
+    }
+
     public void validateTransferencia(OperacionEntity oOperacionEntity) {
+        boolean activa = oOperacionEntity.getEmisorCuentaEntity().isActiva();
+
+        if (!activa) {
+            throw new CannotPerformOperationException("Cuenta deshabilitada");
+        }
+
         Long idEmisor = oOperacionEntity.getEmisorCuentaEntity().getId();
+        Long tipoOperacionTransferencia = oOperacionEntity.getTipooperacion().getId();
         List<OperacionEntity> operacionesEmisor = oOperacionRepository.allOperacionesCuenta(idEmisor, idEmisor);
 
         double balanceTotal = 0;
@@ -91,7 +154,7 @@ public class OperacionService {
         double maxNegativoEmisor = oOperacionEntity.getEmisorCuentaEntity().getTipocuenta().getMaxnegativo();
         double cantidadTransferencia = oOperacionEntity.getCantidad();
 
-        if (cantidadTransferencia > balanceTotal + maxNegativoEmisor) {
+        if (cantidadTransferencia > balanceTotal + maxNegativoEmisor && (tipoOperacionTransferencia == 3 || tipoOperacionTransferencia == 2)) {
             throw new CannotPerformOperationException("");
         }
     }
@@ -110,8 +173,8 @@ public class OperacionService {
     }
 
     public Page<OperacionEntity> getPage(Pageable oPageable, String strFilter, Long id_tipoOperacion,
-            Long id_cuentaemisor, Long id_cuentareceptor) {
-        oAuthService.OnlyAdmins();
+        Long id_cuentaemisor, Long id_cuentareceptor) {
+        
         ValidationHelper.validateRPP(oPageable.getPageSize());
         Page<OperacionEntity> oPage = null;
 
@@ -219,6 +282,10 @@ public class OperacionService {
 
         oNewOperacionEntity.setEmisorCuentaEntity(emisor);
         oNewOperacionEntity.setTipooperacion(tipooperacion);
+
+        if (oNewOperacionEntity.getFechahoraoperacion() == null) {
+            oNewOperacionEntity.setFechahoraoperacion(LocalDateTime.now());
+        }
 
         validateTransferencia(oNewOperacionEntity);
         return oOperacionRepository.save(oNewOperacionEntity).getId();

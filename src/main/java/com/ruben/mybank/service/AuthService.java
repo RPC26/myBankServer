@@ -23,11 +23,11 @@ public class AuthService {
     @Autowired
     UsuarioRepository oUsuarioRepository;
 
-    public String login(@RequestBody UsuarioBean oUsuarioBean) {
+    public String login(UsuarioBean oUsuarioBean) {
         if (oUsuarioBean.getPassword() != null) {
             UsuarioEntity oUsuarioEntity = oUsuarioRepository.findByLoginAndPassword(oUsuarioBean.getLogin(), oUsuarioBean.getPassword());
             if (oUsuarioEntity != null) {
-                return JwtHelper.generateJWT(oUsuarioBean.getLogin());
+                return JwtHelper.generateJWT(String.valueOf(oUsuarioEntity.getId()),oUsuarioEntity.getLogin(), oUsuarioEntity.getTipousuario().getNombre());
             } else {
                 throw new UnauthorizedException("login or password incorrect");
             }

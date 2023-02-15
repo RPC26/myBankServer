@@ -6,6 +6,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import com.ruben.mybank.bean.SaldoUsuario;
+import com.ruben.mybank.bean.CountCuentas;
 import com.ruben.mybank.bean.SaldoCuenta;
 import com.ruben.mybank.entity.CuentaEntity;
 import com.ruben.mybank.entity.OperacionEntity;
@@ -93,6 +94,18 @@ public class CuentaService {
         return oCuentaRepository.count();
     }
 
+    public CountCuentas countActivas() {
+        CountCuentas countCuentas = new CountCuentas();
+
+        Long countHabilitadas = oCuentaRepository.countByActiva(true);
+        Long countDeshabilitadas = oCuentaRepository.countByActiva(false);
+
+        countCuentas.setDeshabilitadas(countDeshabilitadas);
+        countCuentas.setHabilitadas(countHabilitadas);
+
+        return countCuentas;
+    }
+
     public Page<CuentaEntity> getPage(Pageable oPageable, String strFilter, Long id_tipocuenta, Long id_usuario) {
         // oAuthService.OnlyAdmins();
         ValidationHelper.validateRPP(oPageable.getPageSize());
@@ -151,31 +164,14 @@ public class CuentaService {
         validate(oCuentaEntity.getId());
         // oAuthService.OnlyAdmins();
         validate2(oCuentaEntity);
-        if (oAuthService.isAdmin()) {
-            return update4Admins(oCuentaEntity).getId();
-        } else {
-            return update4Users(oCuentaEntity).getId();
-        }
-    }
-
-    @Transactional
-    private CuentaEntity update4Admins(CuentaEntity oUpdatedCuentaEntity) {
-        CuentaEntity oCuentaEntity = oCuentaRepository.findById(oUpdatedCuentaEntity.getId()).get();
+        CuentaEntity oNewCuentaEntity = oCuentaRepository.findById(oCuentaEntity.getId()).get();
         // keeping login password token & validado
-        oCuentaEntity.setUsuario(oUpdatedCuentaEntity.getUsuario());
-        oCuentaEntity.setTipocuenta(oUpdatedCuentaEntity.getTipocuenta());
-        oCuentaEntity.setIban(oUpdatedCuentaEntity.getIban());
-        return oCuentaRepository.save(oCuentaEntity);
-    }
+        oNewCuentaEntity.setUsuario(oCuentaEntity.getUsuario());
+        oNewCuentaEntity.setTipocuenta(oCuentaEntity.getTipocuenta());
+        oNewCuentaEntity.setIban(oCuentaEntity.getIban());
+        oNewCuentaEntity.setActiva(oCuentaEntity.isActiva());
 
-    @Transactional
-    private CuentaEntity update4Users(CuentaEntity oUpdatedCuentaEntity) {
-        CuentaEntity oCuentaEntity = oCuentaRepository.findById(oUpdatedCuentaEntity.getId()).get();
-        // keeping login password token & validado descuento activo tipousuario
-        oCuentaEntity.setUsuario(oUpdatedCuentaEntity.getUsuario());
-        oCuentaEntity.setTipocuenta(oUpdatedCuentaEntity.getTipocuenta());
-        oCuentaEntity.setIban(oUpdatedCuentaEntity.getIban());
-        return oCuentaRepository.save(oCuentaEntity);
+        return oCuentaRepository.save(oNewCuentaEntity).getId();
     }
 
     public Long delete(Long id) {
@@ -210,6 +206,7 @@ public class CuentaService {
         oCuentaEntity.setFechacreacion(RandomHelper.getRadomDateTime());
         oCuentaEntity.setIban(RandomHelper.getRandomIban());
         oCuentaEntity.setUsuario(usuarioRandom());
+        oCuentaEntity.setActiva(true);
         if (RandomHelper.getRandomInt(0, 10) > 5) {
             oCuentaEntity.setTipocuenta(oTipocuentaService.get(TipoCuentaHelper.NEGOCIOS));
         } else {

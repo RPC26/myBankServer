@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.data.domain.Sort;
 
 import com.ruben.mybank.bean.SaldoCuenta;
+import com.ruben.mybank.bean.CountCuentas;
 import com.ruben.mybank.entity.CuentaEntity;
 import com.ruben.mybank.service.CuentaService;
 
@@ -37,6 +38,11 @@ public class CuentaController {
     @GetMapping("/count")
     public ResponseEntity<Long> count() {
         return new ResponseEntity<Long>(oCuentaService.count(), HttpStatus.OK);
+    }
+
+    @GetMapping("/count/estado")
+    public ResponseEntity<CountCuentas> countEstado() {
+        return new ResponseEntity<>(oCuentaService.countActivas(),HttpStatus.OK);
     }
 
     @GetMapping

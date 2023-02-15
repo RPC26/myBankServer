@@ -20,17 +20,19 @@ public class JwtHelper {
         return Keys.hmacShaKeyFor((SECRET + ISSUER + SECRET).getBytes());
     }
 
-    public static String generateJWT(String name) {
+    public static String generateJWT(String id, String name, String role) {
 
         Date currentTime = Date.from(Instant.now());
-        Date expiryTime = Date.from(Instant.now().plus(Duration.ofSeconds(9600)));
+        Date expiryTime = Date.from(Instant.now().plus(Duration.ofSeconds(5000000)));
 
         return Jwts.builder()
                .setId(UUID.randomUUID().toString())
                .setIssuer(ISSUER)
                .setIssuedAt(currentTime)
                .setExpiration(expiryTime)
+               .claim("id", id)
                .claim("name", name)
+               .claim("role", role)
                .signWith(secretKey())
                .compact();
     }

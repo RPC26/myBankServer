@@ -19,5 +19,6 @@ public interface CuentaRepository extends JpaRepository<CuentaEntity, Long> {
     Page<CuentaEntity> findByTipocuentaIdAndUsuarioIdAndIbanIgnoreCaseContaining(Long id_tipocuenta, Long id_usuario,
             String strFilter, Pageable oPageable);
     Page<CuentaEntity> findByTipocuentaIdAndUsuarioId(Long id_tipocuenta, Long id_usuario, Pageable oPageable);
+    Long countByActiva(boolean activa);
 
 }
