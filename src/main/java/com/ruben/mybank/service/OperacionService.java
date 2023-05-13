@@ -74,12 +74,43 @@ public class OperacionService {
         return operacionesHoy.size();
     }
 
+    // public OperacionesDashboard getSaldoAllCuentasByMes() {
+    //     UsuarioEntity loggedUser = oAuthService.check();
+    //     OperacionesDashboard dataset = new OperacionesDashboard();
+    //     dataset.setLabel("Saldo por mes");
+
+    //     List<CuentaEntity> cuentasUsuario = oCuentaRepository.findByUsuarioId(loggedUser.getId());
+
+    //     double balanceTotal = 0;
+    //     for (CuentaEntity cuenta : cuentasUsuario) {
+
+    //         LocalDate añoActual = LocalDate.now();
+    //         String fechaString = añoActual.toString();
+    //         String[] añoString = fechaString.split("[-]");
+
+    //         for (int i = 0; i < 12; i++) {
+    //             String mes = "";
+
+    //             if (i < 10) {
+    //                 mes = añoString[0] + "-0" + i;
+    //             } else {
+    //                 mes = añoString[0] + "-" + i;
+    //             }
+
+    //             List<OperacionEntity> operacionesCuenta = oOperacionRepository.allOperacionesCuentaFecha(mes,
+    //                     cuenta.getId());
+    //         }
+
+    //     }
+
+    // }
+
     public List<OperacionesDashboard> getAllOperaciones(Long id_cuenta) {
         List<OperacionesDashboard> datasetsAll = new ArrayList<>();
 
-        String[] tipoOperaciones = {"Ingreso", "Retirada", "Transferencia"};
+        String[] tipoOperaciones = { "Ingreso", "Retirada", "Transferencia" };
 
-        for (int i = 1 ; i <= 3 ; i++) {
+        for (int i = 1; i <= 3; i++) {
             OperacionesDashboard dataset = new OperacionesDashboard();
             dataset.setLabel(tipoOperaciones[i - 1]);
 
@@ -88,7 +119,7 @@ public class OperacionService {
             LocalDate añoActual = LocalDate.now();
             String fechaString = añoActual.toString();
             String[] añoString = fechaString.split("[-]");
-            
+
             for (int j = 1; j <= 12; j++) {
 
                 String mes = "";
@@ -98,16 +129,17 @@ public class OperacionService {
                 } else {
                     mes = añoString[0] + "-" + j;
                 }
-                
+
                 Integer countOperacionesMes = null;
-                
+
                 if (id_cuenta != 0L) {
-                    countOperacionesMes = oOperacionRepository.operacionPorTipoMesCuenta(Long.valueOf(i), mes, id_cuenta);
+                    countOperacionesMes = oOperacionRepository.operacionPorTipoMesCuenta(Long.valueOf(i), mes,
+                            id_cuenta);
                 } else {
                     countOperacionesMes = oOperacionRepository.operacionPorTipoMes(Long.valueOf(i), mes);
                 }
 
-                data.add(countOperacionesMes); 
+                data.add(countOperacionesMes);
             }
 
             dataset.setData(data);
@@ -154,7 +186,8 @@ public class OperacionService {
         double maxNegativoEmisor = oOperacionEntity.getEmisorCuentaEntity().getTipocuenta().getMaxnegativo();
         double cantidadTransferencia = oOperacionEntity.getCantidad();
 
-        if (cantidadTransferencia > balanceTotal + maxNegativoEmisor && (tipoOperacionTransferencia == 3 || tipoOperacionTransferencia == 2)) {
+        if (cantidadTransferencia > balanceTotal + maxNegativoEmisor
+                && (tipoOperacionTransferencia == 3 || tipoOperacionTransferencia == 2)) {
             throw new CannotPerformOperationException("");
         }
     }
@@ -173,8 +206,8 @@ public class OperacionService {
     }
 
     public Page<OperacionEntity> getPage(Pageable oPageable, String strFilter, Long id_tipoOperacion,
-        Long id_cuentaemisor, Long id_cuentareceptor) {
-        
+            Long id_cuentaemisor, Long id_cuentareceptor) {
+
         ValidationHelper.validateRPP(oPageable.getPageSize());
         Page<OperacionEntity> oPage = null;
 
@@ -271,12 +304,14 @@ public class OperacionService {
 
     public Long create(OperacionEntity oNewOperacionEntity) {
         // oAuthService.OnlyAdmins();
-        
+
         CuentaEntity emisor = oCuentaRepository.findById(oNewOperacionEntity.getEmisorCuentaEntity().getId()).get();
-        TipooperacionEntity tipooperacion = oTipooperacionRepository.findById(oNewOperacionEntity.getTipooperacion().getId()).get();
+        TipooperacionEntity tipooperacion = oTipooperacionRepository
+                .findById(oNewOperacionEntity.getTipooperacion().getId()).get();
 
         if (oNewOperacionEntity.getReceptorCuentaEntity() != null) {
-            CuentaEntity receptor = oCuentaRepository.findById(oNewOperacionEntity.getReceptorCuentaEntity().getId()).get();
+            CuentaEntity receptor = oCuentaRepository.findById(oNewOperacionEntity.getReceptorCuentaEntity().getId())
+                    .get();
             oNewOperacionEntity.setReceptorCuentaEntity(receptor);
         }
 
@@ -297,10 +332,12 @@ public class OperacionService {
         validate(oOperacionEntity.getId());
 
         CuentaEntity emisor = oCuentaRepository.findById(oOperacionEntity.getEmisorCuentaEntity().getId()).get();
-        TipooperacionEntity tipooperacion = oTipooperacionRepository.findById(oOperacionEntity.getTipooperacion().getId()).get();
+        TipooperacionEntity tipooperacion = oTipooperacionRepository
+                .findById(oOperacionEntity.getTipooperacion().getId()).get();
 
         if (oOperacionEntity.getReceptorCuentaEntity() != null) {
-            CuentaEntity receptor = oCuentaRepository.findById(oOperacionEntity.getReceptorCuentaEntity().getId()).get();
+            CuentaEntity receptor = oCuentaRepository.findById(oOperacionEntity.getReceptorCuentaEntity().getId())
+                    .get();
             oOperacionEntity.setReceptorCuentaEntity(receptor);
         }
 

@@ -1,5 +1,6 @@
 package com.ruben.mybank.api;
 
+import org.apache.catalina.connector.Response;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -19,6 +20,7 @@ import org.springframework.data.domain.Sort;
 
 import com.ruben.mybank.bean.SaldoCuenta;
 import com.ruben.mybank.bean.CountCuentas;
+import com.ruben.mybank.bean.OperacionesDashboard;
 import com.ruben.mybank.entity.CuentaEntity;
 import com.ruben.mybank.service.CuentaService;
 
@@ -56,7 +58,12 @@ public class CuentaController {
 
     @GetMapping("/{id}/saldo")
     public ResponseEntity<SaldoCuenta> saldo(@PathVariable(value = "id") Long id) {
-        return new ResponseEntity<>(oCuentaService.saldo(id), HttpStatus.OK);
+        return new ResponseEntity<>(oCuentaService.saldo(id, ""), HttpStatus.OK);
+    }
+
+    @GetMapping("/saldo/misCuentas")
+    public ResponseEntity<OperacionesDashboard> getMisCuentas() {
+        return new ResponseEntity<>(oCuentaService.saldoMisCuentas(), HttpStatus.OK);
     }
 
     @PostMapping

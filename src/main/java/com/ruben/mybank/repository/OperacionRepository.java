@@ -75,6 +75,9 @@ public interface OperacionRepository extends JpaRepository<OperacionEntity, Long
         @Query(value = "SELECT * FROM operacion WHERE fechahoraoperacion LIKE %?1%", nativeQuery = true)
         List<OperacionEntity> allOperacionesHoy(String hoy);
 
+        @Query(value = "SELECT * FROM operacion WHERE fechahoraoperacion LIKE %?1% AND ( id_cuentaemisor = ?2 OR id_cuentareceptor = ?3)", nativeQuery = true)
+        List<OperacionEntity> allOperacionesCuentaFecha(String fecha, Long id_cuenta, Long id_cuenta2);
+
         @Query(value = "SELECT COUNT(*) FROM operacion WHERE fechahoraoperacion LIKE %?2% AND id_tipooperacion = ?1 AND (id_cuentaemisor = ?3 OR id_cuentareceptor = ?3)", nativeQuery = true)
         Integer operacionPorTipoMesCuenta(Long id_tipooperacion, String fecha, Long id_cuenta);
 

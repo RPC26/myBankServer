@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service;
 
 import com.ruben.mybank.bean.SaldoUsuario;
 import com.ruben.mybank.bean.CountCuentas;
+import com.ruben.mybank.bean.OperacionesDashboard;
 import com.ruben.mybank.bean.SaldoCuenta;
 import com.ruben.mybank.entity.CuentaEntity;
 import com.ruben.mybank.entity.OperacionEntity;
@@ -22,6 +23,7 @@ import com.ruben.mybank.repository.OperacionRepository;
 import com.ruben.mybank.repository.TipocuentaRepository;
 import com.ruben.mybank.repository.UsuarioRepository;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -232,14 +234,43 @@ public class CuentaService {
         return oCuentaRepository.count();
     }
 
-    public SaldoCuenta saldo(Long id) {
+    public OperacionesDashboard saldoMisCuentas() {
+        OperacionesDashboard dataset = new OperacionesDashboard();
+        dataset.setLabel("Saldo por mes");
+
+        UsuarioEntity loggedUser = oAuthService.check();
+        List<CuentaEntity> cuentasUsuario = oCuentaRepository.findByUsuarioId(loggedUser.getId());
+        List<Integer> saldoMes = new ArrayList<>();
+
+        for (CuentaEntity cuenta: cuentasUsuario) {
+
+            for (int i = 0; i < 12; i++) {
+                String mes = "";
+
+                if (i < 10) {
+                    mes =  "-0" + i;
+                } else {
+                    mes =  "-" + i;
+                }
+
+                double saldoCuenta = saldo(cuenta.getId(), mes).getSaldoReal();
+                saldoMes.add((int) saldoCuenta);
+            }
+
+            dataset.setData(saldoMes);
+        }
+
+        return dataset;
+    }
+
+    public SaldoCuenta saldo(Long id, String mes) {
 
         CuentaEntity cuenta = oCuentaRepository.findById(id).get();
         SaldoCuenta saldoCuenta = new SaldoCuenta();
         saldoCuenta.setIdCuenta(id);
 
-        List<OperacionEntity> operaciones = oOperacionRepository.allOperacionesCuenta(cuenta.getId(),
-                cuenta.getId());
+        List<OperacionEntity> operaciones = oOperacionRepository.allOperacionesCuentaFecha(mes,
+                cuenta.getId(), cuenta.getId());
 
         double balanceTotal = 0;
 
